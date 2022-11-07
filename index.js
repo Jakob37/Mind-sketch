@@ -161,7 +161,8 @@ function ForceGraph(
     .data(nodes)
     .join("circle")
     .attr("r", nodeRadius)
-    .call(drag(simulation));
+    .call(drag(simulation))
+    .on("click", (node, datum) => console.log("Click", datum))
 
   if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
   if (L) link.attr("stroke", ({ index: i }) => L[i]);
