@@ -7,35 +7,7 @@ const data = [
   { x: 1, y: 4 },
 ];
 
-// const svg = d3
-//   .select("body")
-//   .append("svg")
-//   .attr("width", 600)
-//   .attr("height", 600);
-
-console.log("test");
-
-// svg
-//   .selectAll(".dot")
-//   .data(data)
-//   .join("circle")
-//   .attr("r", 20)
-//   .attr("cx", 50)
-//   .attr("cy", 50)
-//   .attr("fill", "blue");
-
-// {
-//     r: 5,
-//     cx: 50,
-//     cy: 50,
-//     color: "black"
-// })
-
-// const svg = d3.select("svg")
-// const width = +svg.attr("width")
-// const height = +svg.attr("height");
-
-const width = 800;
+const width = 1000;
 const height = 800;
 
 const svg = d3
@@ -44,6 +16,46 @@ const svg = d3
   .attr("height", height)
   .attr("viewBox", [-width / 2, -height / 2, width, height])
   .attr("style", "max-width: 100%; height: auto; height: intrinsic;");
+
+svg
+  .append("rect")
+  .attr("x", -width/2)
+  .attr("y", -height/2)
+  .attr("width", width)
+  .attr("height", height)
+  .attr("fill", "#F2EECB");
+
+const miserables = {
+  nodes: [
+    { id: "Center theme", group: 10, nodeRadius: 50 },
+    { id: "Sub theme 1", group: 10, nodeRadius: 50 },
+    { id: "Sub theme 2", group: 10, nodeRadius: 50 },
+    { id: "Sub theme 3", group: 10, nodeRadius: 50 },
+    { id: "Sub theme 4", group: 10, nodeRadius: 50 },
+  ],
+  links: [
+    { source: "Center theme", target: "Sub theme 1", value: 1 },
+    { source: "Center theme", target: "Sub theme 2", value: 1 },
+    { source: "Center theme", target: "Sub theme 3", value: 1 },
+    { source: "Center theme", target: "Sub theme 4", value: 1 },
+  ],
+};
+
+const chart = ForceGraph(miserables, svg, {
+  nodeId: (d) => d.id,
+  nodeGroup: (d) => d.group,
+  nodeTitle: (d) => `${d.id}\n${d.group}`,
+  linkStrokeWidth: (l) => Math.sqrt(l.value),
+  nodeStrength: 20,
+  linkStrength: 1,
+  linkStrokeWidth: 3,
+  width,
+  height,
+  nodeRadius: 30,
+  invalidation: null, // a promise to stop the simulation when the cell is re-run
+});
+
+console.log("Chart", chart);
 
 // Copyright 2021 Observable, Inc.
 // Released under the ISC license.
@@ -103,6 +115,7 @@ function ForceGraph(
 
   // Construct the forces.
   const forceNode = d3.forceManyBody();
+  const forceCollide = d3.forceCollide().radius(50);
   const forceLink = d3.forceLink(links).id(({ index: i }) => N[i]);
   if (nodeStrength !== undefined) forceNode.strength(nodeStrength);
   if (linkStrength !== undefined) forceLink.strength(linkStrength);
@@ -111,6 +124,7 @@ function ForceGraph(
     .forceSimulation(nodes)
     .force("link", forceLink)
     .force("charge", forceNode)
+    .force("collide", forceCollide)
     .force("center", d3.forceCenter())
     .on("tick", ticked);
 
@@ -195,26 +209,6 @@ function ForceGraph(
 
   return Object.assign(svg.node(), { scales: { color } });
 }
-
-const miserables = {
-  nodes: [
-    { id: "Myriel", group: 1 },
-    { id: "Napoleon", group: 1 },
-  ],
-  links: [{ source: "Napoleon", target: "Myriel", value: 1 }],
-};
-
-const chart = ForceGraph(miserables, svg, {
-  nodeId: (d) => d.id,
-  nodeGroup: (d) => d.group,
-  nodeTitle: (d) => `${d.id}\n${d.group}`,
-  linkStrokeWidth: (l) => Math.sqrt(l.value),
-  width,
-  height,
-  invalidation: null, // a promise to stop the simulation when the cell is re-run
-});
-
-console.log('Chart', chart);
 
 // d3
 //   .select("body")
