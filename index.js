@@ -19,8 +19,8 @@ const svg = d3
 
 svg
   .append("rect")
-  .attr("x", -width / 2)
-  .attr("y", -height / 2)
+  .attr("x", -width/2)
+  .attr("y", -height/2)
   .attr("width", width)
   .attr("height", height)
   .attr("fill", "#F2EECB");
@@ -94,33 +94,24 @@ function ForceGraph(
   } = {}
 ) {
   // Compute values.
-  const nodes = d3.map(nodes, nodeId).map(intern);
-  const linkSources = d3.map(links, linkSource).map(intern);
-  const linkTargets = d3.map(links, linkTarget).map(intern);
-  if (nodeTitle === undefined) {
-    nodeTitle = (_, i) => nodes[i];
-  }
-  const nodeTitles = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
-  const nodeGroups =
-    nodeGroup == null ? null : d3.map(nodes, nodeGroup).map(intern);
-  const strokeWidths =
+  const N = d3.map(nodes, nodeId).map(intern);
+  const LS = d3.map(links, linkSource).map(intern);
+  const LT = d3.map(links, linkTarget).map(intern);
+  if (nodeTitle === undefined) nodeTitle = (_, i) => N[i];
+  const T = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
+  const G = nodeGroup == null ? null : d3.map(nodes, nodeGroup).map(intern);
+  const W =
     typeof linkStrokeWidth !== "function"
       ? null
       : d3.map(links, linkStrokeWidth);
-  const linkStrokes =
-    typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
+  const L = typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
 
   // Replace the input nodes and links with mutable objects for the simulation.
-  nodes = d3.map(nodes, (_, i) => ({ id: nodes[i] }));
-  links = d3.map(links, (_, i) => ({
-    source: linkSources[i],
-    target: linkTargets[i],
-  }));
+  nodes = d3.map(nodes, (_, i) => ({ id: N[i] }));
+  links = d3.map(links, (_, i) => ({ source: LS[i], target: LT[i] }));
 
   // Compute default domains.
-  if (nodeGroups && nodeGroups === undefined) {
-    nodeGroups = d3.sort(nodeGroups);
-  }
+  if (G && nodeGroups === undefined) nodeGroups = d3.sort(G);
 
   // Construct the scales.
   const color = nodeGroup == null ? null : d3.scaleOrdinal(nodeGroups, colors);
@@ -128,13 +119,9 @@ function ForceGraph(
   // Construct the forces.
   const forceNode = d3.forceManyBody();
   const forceCollide = d3.forceCollide().radius(50);
-  const forceLink = d3.forceLink(links).id(({ index: i }) => nodes[i]);
-  if (nodeStrength !== undefined) {
-    forceNode.strength(nodeStrength);
-  }
-  if (linkStrength !== undefined) {
-    forceLink.strength(linkStrength);
-  }
+  const forceLink = d3.forceLink(links).id(({ index: i }) => N[i]);
+  if (nodeStrength !== undefined) forceNode.strength(nodeStrength);
+  if (linkStrength !== undefined) forceLink.strength(linkStrength);
 
   const simulation = d3
     .forceSimulation(nodes)
@@ -143,6 +130,13 @@ function ForceGraph(
     .force("collide", forceCollide)
     .force("center", d3.forceCenter())
     .on("tick", ticked);
+
+  // const svg = d3
+  //   .create("svg")
+  //   .attr("width", width)
+  //   .attr("height", height)
+  //   .attr("viewBox", [-width / 2, -height / 2, width, height])
+  //   .attr("style", "max-width: 100%; height: auto; height: intrinsic;");
 
   const link = svg
     .append("g")
@@ -169,21 +163,11 @@ function ForceGraph(
     .attr("r", nodeRadius)
     .call(drag(simulation));
 
-  if (strokeWidths) {
-    link.attr("stroke-width", ({ index: i }) => strokeWidths[i]);
-  }
-  if (linkStrokes) {
-    link.attr("stroke", ({ index: i }) => linkStrokes[i]);
-  }
-  if (nodeGroups) {
-    node.attr("fill", ({ index: i }) => color(nodeGroups[i]));
-  }
-  if (nodeTitles) {
-    node.append("title").text(({ index: i }) => nodeTitles[i]);
-  }
-  if (invalidation != null) {
-    invalidation.then(() => simulation.stop());
-  }
+  if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
+  if (L) link.attr("stroke", ({ index: i }) => L[i]);
+  if (G) node.attr("fill", ({ index: i }) => color(G[i]));
+  if (T) node.append("title").text(({ index: i }) => T[i]);
+  if (invalidation != null) invalidation.then(() => simulation.stop());
 
   function intern(value) {
     return value !== null && typeof value === "object"
@@ -229,3 +213,6 @@ function ForceGraph(
   return Object.assign(svg.node(), { scales: { color } });
 }
 
+// d3
+//   .select("body")
+//   .append(chart);
