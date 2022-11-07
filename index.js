@@ -43,12 +43,15 @@ const miserables = {
 
 const chart = ForceGraph(miserables, svg, {
   nodeId: (d) => d.id,
-  nodeGroup: (d) => d.group,
+  // nodeGroup: (d) => d.group,
   nodeTitle: (d) => `${d.id}\n${d.group}`,
   linkStrokeWidth: (l) => Math.sqrt(l.value),
   nodeStrength: 20,
   linkStrength: 1,
   linkStrokeWidth: 3,
+  nodeStroke: "#999",
+  linkStroke: "#999",
+  nodeFill: "#ccf",
   width,
   height,
   nodeRadius: 30,
