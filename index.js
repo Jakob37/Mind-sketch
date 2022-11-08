@@ -19,8 +19,8 @@ const svg = d3
 
 svg
   .append("rect")
-  .attr("x", -width/2)
-  .attr("y", -height/2)
+  .attr("x", -width / 2)
+  .attr("y", -height / 2)
   .attr("width", width)
   .attr("height", height)
   .attr("fill", "#F2EECB");
@@ -162,7 +162,19 @@ function ForceGraph(
     .join("circle")
     .attr("r", nodeRadius)
     .call(drag(simulation))
-    .on("click", (node, datum) => console.log("Click", datum))
+    .on("click", (node, datum) => console.log("Click", datum));
+
+  const nodeLabels = svg
+    .selectAll("text.label")
+    .data(nodes)
+    .enter()
+    .append("text")
+    .attr("class", "label")
+    .attr("fill", "black")
+    .text("Test text")
+    // .text(function (d) {
+    //   return d.name;
+    // });
 
   if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
   if (L) link.attr("stroke", ({ index: i }) => L[i]);
@@ -177,6 +189,8 @@ function ForceGraph(
   }
 
   function ticked() {
+    console.log("Just tickin");
+
     link
       .attr("x1", (d) => d.source.x)
       .attr("y1", (d) => d.source.y)
@@ -184,6 +198,7 @@ function ForceGraph(
       .attr("y2", (d) => d.target.y);
 
     node.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
+    nodeLabels.attr("x", (d) => d.x).attr("y", (d) => d.y);
   }
 
   function drag(simulation) {
