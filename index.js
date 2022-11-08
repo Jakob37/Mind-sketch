@@ -23,15 +23,20 @@ var node = g
   .attr("stroke-width", 1.5)
   .selectAll(".node");
 
+let remainingSteps = 200;
+
 var simulation = d3
   .forceSimulation(nodes)
   .force("charge", d3.forceManyBody().strength(-1000))
   .force("link", d3.forceLink(links).distance(100))
-  .force("x", d3.forceX())
-  .force("y", d3.forceY())
+  .force("x", d3.forceX(-200))
+  .force("y", d3.forceY(-200))
   .alphaTarget(1)
   .on("tick", function () {
-    ticked(node, link);
+    remainingSteps -= 1;
+    if (remainingSteps > 0) {
+        ticked(node, link);
+    }
   });
 
 restart();
@@ -43,40 +48,32 @@ d3.timeout(function () {
   restart();
 }, 1000);
 
-// d3.interval(
-//   function () {
-//     nodes.pop(); // Remove c.
-//     links.pop(); // Remove c-a.
-//     links.pop(); // Remove b-c.
-//     restart();
-//   },
-//   2000,
-//   d3.now()
-// );
-
 function spawnNode(source) {
-    const newNode = { id: `node_${nodes.length}` };
-    // const source = nodes[Math.floor(Math.random() * nodes.length)];
-    const newLink = { source, target: newNode };
-    nodes.push(newNode);
-    links.push(newLink);
+  console.log("Spawning node");
+  const newNode = { id: `node_${nodes.length}` };
+  // const source = nodes[Math.floor(Math.random() * nodes.length)];
+  const newLink = { source, target: newNode };
+  nodes.push(newNode);
+  links.push(newLink);
+
+  console.group("Resulting", nodes, links);
 }
 
-d3.interval(
-  function () {
-    // const newNode = { id: `node_${nodes.length}` };
-    const source = nodes[Math.floor(Math.random() * nodes.length)];
-    // const newLink = { source, target: newNode };
-    // nodes.push(newNode);
-    // links.push(newLink);
+// d3.interval(
+//   function () {
+//     // const newNode = { id: `node_${nodes.length}` };
+//     const source = nodes[Math.floor(Math.random() * nodes.length)];
+//     // const newLink = { source, target: newNode };
+//     // nodes.push(newNode);
+//     // links.push(newLink);
 
-    spawnNode(source);
+//     spawnNode(source);
 
-    restart();
-  },
-  500,
-  d3.now() + 500
-);
+//     restart();
+//   },
+//   500,
+//   d3.now() + 500
+// );
 
 function restart() {
   // Apply the general update pattern to the nodes.
@@ -91,6 +88,12 @@ function restart() {
       return "green";
     })
     .attr("r", 8)
+    .on("click", function (_target, node) {
+      console.log("Clicking");
+      spawnNode(node);
+      remainingSteps = 50;
+      restart();
+    })
     .merge(node);
 
   // Apply the general update pattern to the links.
