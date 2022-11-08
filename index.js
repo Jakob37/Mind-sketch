@@ -1,252 +1,152 @@
-// import * as d3 from './d3';
+const svg = setupSvg();
 
-const data = [
-  { x: 1, y: 4 },
-  { x: 1, y: 4 },
-  { x: 1, y: 4 },
-  { x: 1, y: 4 },
-];
+const a = { id: "a" };
+const b = { id: "b" };
+const c = { id: "c" };
+const nodes = [a, b, c];
+const links = [];
 
-const width = 1000;
-const height = 800;
+const width = 400;
+const height = 400;
 
-const svg = d3
-  .select("svg")
-  .attr("width", width)
-  .attr("height", height)
-  .attr("viewBox", [-width / 2, -height / 2, width, height])
-  .attr("style", "max-width: 100%; height: auto; height: intrinsic;");
+var g = svg
+  .append("g")
+  .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+var link = g
+  .append("g")
+  .attr("stroke", "#000")
+  .attr("stroke-width", 1.5)
+  .selectAll(".link");
+var node = g
+  .append("g")
+  .attr("stroke", "#fff")
+  .attr("stroke-width", 1.5)
+  .selectAll(".node");
 
-svg
-  .append("rect")
-  .attr("x", -width / 2)
-  .attr("y", -height / 2)
-  .attr("width", width)
-  .attr("height", height)
-  .attr("fill", "#F2EECB");
+var simulation = d3
+  .forceSimulation(nodes)
+  .force("charge", d3.forceManyBody().strength(-1000))
+  .force("link", d3.forceLink(links).distance(100))
+  .force("x", d3.forceX())
+  .force("y", d3.forceY())
+  .alphaTarget(1)
+  .on("tick", function () {
+    ticked(node, link);
+  });
 
-const miserables = {
-  nodes: [
-    { id: "Center theme", group: 10, nodeRadius: 50 },
-    { id: "Sub theme 1", group: 10, nodeRadius: 50 },
-    { id: "Sub theme 2", group: 10, nodeRadius: 50 },
-    { id: "Sub theme 3", group: 10, nodeRadius: 50 },
-    { id: "Sub theme 4", group: 10, nodeRadius: 50 },
-  ],
-  links: [
-    { source: "Center theme", target: "Sub theme 1", value: 1 },
-    { source: "Center theme", target: "Sub theme 2", value: 1 },
-    { source: "Center theme", target: "Sub theme 3", value: 1 },
-    { source: "Center theme", target: "Sub theme 4", value: 1 },
-  ],
-};
+restart();
 
-const chart = ForceGraph(miserables, svg, {
-  nodeId: (d) => d.id,
-  // nodeGroup: (d) => d.group,
-  nodeTitle: (d) => `${d.id}\n${d.group}`,
-  linkStrokeWidth: (l) => Math.sqrt(l.value),
-  nodeStrength: 20,
-  linkStrength: 1,
-  linkStrokeWidth: 3,
-  nodeStroke: "#999",
-  linkStroke: "#999",
-  nodeFill: "#ccf",
-  width,
-  height,
-  nodeRadius: 30,
-  invalidation: null, // a promise to stop the simulation when the cell is re-run
-});
+d3.timeout(function () {
+  links.push({ source: a, target: b }); // Add a-b.
+  links.push({ source: b, target: c }); // Add b-c.
+  links.push({ source: c, target: a }); // Add c-a.
+  restart();
+}, 1000);
 
-console.log("Chart", chart);
+// d3.interval(
+//   function () {
+//     nodes.pop(); // Remove c.
+//     links.pop(); // Remove c-a.
+//     links.pop(); // Remove b-c.
+//     restart();
+//   },
+//   2000,
+//   d3.now()
+// );
 
-// Copyright 2021 Observable, Inc.
-// Released under the ISC license.
-// https://observablehq.com/@d3/force-directed-graph
-function ForceGraph(
-  {
-    nodes, // an iterable of node objects (typically [{id}, …])
-    links, // an iterable of link objects (typically [{source, target}, …])
-  },
-  svg,
-  {
-    nodeId = (d) => d.id, // given d in nodes, returns a unique identifier (string)
-    nodeGroup, // given d in nodes, returns an (ordinal) value for color
-    nodeGroups, // an array of ordinal values representing the node groups
-    nodeTitle, // given d in nodes, a title string
-    nodeFill = "currentColor", // node stroke fill (if not using a group color encoding)
-    nodeStroke = "#fff", // node stroke color
-    nodeStrokeWidth = 1.5, // node stroke width, in pixels
-    nodeStrokeOpacity = 1, // node stroke opacity
-    nodeRadius = 5, // node radius, in pixels
-    nodeStrength,
-    linkSource = ({ source }) => source, // given d in links, returns a node identifier string
-    linkTarget = ({ target }) => target, // given d in links, returns a node identifier string
-    linkStroke = "#999", // link stroke color
-    linkStrokeOpacity = 0.6, // link stroke opacity
-    linkStrokeWidth = 1.5, // given d in links, returns a stroke width in pixels
-    linkStrokeLinecap = "round", // link stroke linecap
-    linkStrength,
-    colors = d3.schemeTableau10, // an array of color strings, for the node groups
-    width = 640, // outer width, in pixels
-    height = 400, // outer height, in pixels
-    invalidation, // when this promise resolves, stop the simulation
-  } = {}
-) {
-  // Compute values.
-  const N = d3.map(nodes, nodeId).map(intern);
-  const LS = d3.map(links, linkSource).map(intern);
-  const LT = d3.map(links, linkTarget).map(intern);
-  if (nodeTitle === undefined) nodeTitle = (_, i) => N[i];
-  const T = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
-  const G = nodeGroup == null ? null : d3.map(nodes, nodeGroup).map(intern);
-  const W =
-    typeof linkStrokeWidth !== "function"
-      ? null
-      : d3.map(links, linkStrokeWidth);
-  const L = typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
-
-  // Replace the input nodes and links with mutable objects for the simulation.
-  nodes = d3.map(nodes, (_, i) => ({ id: N[i] }));
-  links = d3.map(links, (_, i) => ({ source: LS[i], target: LT[i] }));
-
-  // Compute default domains.
-  if (G && nodeGroups === undefined) nodeGroups = d3.sort(G);
-
-  // Construct the scales.
-  const color = nodeGroup == null ? null : d3.scaleOrdinal(nodeGroups, colors);
-
-  // Construct the forces.
-  const forceNode = d3.forceManyBody();
-  const forceCollide = d3.forceCollide().radius(50);
-  const forceLink = d3.forceLink(links).id(({ index: i }) => N[i]);
-  if (nodeStrength !== undefined) forceNode.strength(nodeStrength);
-  if (linkStrength !== undefined) forceLink.strength(linkStrength);
-
-  const simulation = d3
-    .forceSimulation(nodes)
-    .force("link", forceLink)
-    .force("charge", forceNode)
-    .force("collide", forceCollide)
-    .force("center", d3.forceCenter())
-    .on("tick", ticked);
-
-  // const svg = d3
-  //   .create("svg")
-  //   .attr("width", width)
-  //   .attr("height", height)
-  //   .attr("viewBox", [-width / 2, -height / 2, width, height])
-  //   .attr("style", "max-width: 100%; height: auto; height: intrinsic;");
-
-  const link = svg
-    .append("g")
-    .attr("stroke", typeof linkStroke !== "function" ? linkStroke : null)
-    .attr("stroke-opacity", linkStrokeOpacity)
-    .attr(
-      "stroke-width",
-      typeof linkStrokeWidth !== "function" ? linkStrokeWidth : null
-    )
-    .attr("stroke-linecap", linkStrokeLinecap)
-    .selectAll("line")
-    .data(links)
-    .join("line");
-
-  const node = svg
-    .append("g")
-    .attr("fill", nodeFill)
-    .attr("stroke", nodeStroke)
-    .attr("stroke-opacity", nodeStrokeOpacity)
-    .attr("stroke-width", nodeStrokeWidth)
-    .selectAll("circle")
-    .data(nodes)
-    .join("circle")
-    .attr("r", nodeRadius)
-    .call(drag(simulation))
-    .on("click", (node, datum) => console.log("Click", datum));
-
-  const nodeLabels = svg
-    .selectAll("text.label")
-    .data(nodes)
-    .enter()
-    .append("text")
-    .attr("class", "label")
-    .attr("fill", "black")
-    .text("Test text")
-    .on("click", (node, datum) => {
-      //   { id: "Sub theme 4", group: 10, nodeRadius: 50 },
-      // ],
-      // links: [
-      //   { source: "Center theme", target: "Sub theme 1", value: 1 },
-
-      console.log(datum);
-
-      const newNode = structuredClone(datum);
-      newNode.id = "NEWNODEID";
-      newNode.index = 5;
-      const link = { source: datum, target: newNode, value: 1 };
-
-      console.log(newNode, link);
-
-      nodes.push(newNode);
-      links.push(link);
-
-      console.log(nodes);
-      console.log(links);
-    });
-
-  if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
-  if (L) link.attr("stroke", ({ index: i }) => L[i]);
-  if (G) node.attr("fill", ({ index: i }) => color(G[i]));
-  if (T) node.append("title").text(({ index: i }) => T[i]);
-  if (invalidation != null) invalidation.then(() => simulation.stop());
-
-  function intern(value) {
-    return value !== null && typeof value === "object"
-      ? value.valueOf()
-      : value;
-  }
-
-  function ticked() {
-    console.log("Just tickin");
-
-    link
-      .attr("x1", (d) => d.source.x)
-      .attr("y1", (d) => d.source.y)
-      .attr("x2", (d) => d.target.x)
-      .attr("y2", (d) => d.target.y);
-
-    node.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
-    nodeLabels.attr("x", (d) => d.x).attr("y", (d) => d.y);
-  }
-
-  function drag(simulation) {
-    function dragstarted(event) {
-      if (!event.active) simulation.alphaTarget(0.3).restart();
-      event.subject.fx = event.subject.x;
-      event.subject.fy = event.subject.y;
-    }
-
-    function dragged(event) {
-      event.subject.fx = event.x;
-      event.subject.fy = event.y;
-    }
-
-    function dragended(event) {
-      if (!event.active) simulation.alphaTarget(0);
-      event.subject.fx = null;
-      event.subject.fy = null;
-    }
-
-    return d3
-      .drag()
-      .on("start", dragstarted)
-      .on("drag", dragged)
-      .on("end", dragended);
-  }
-
-  return Object.assign(svg.node(), { scales: { color } });
+function spawnNode(source) {
+    const newNode = { id: `node_${nodes.length}` };
+    // const source = nodes[Math.floor(Math.random() * nodes.length)];
+    const newLink = { source, target: newNode };
+    nodes.push(newNode);
+    links.push(newLink);
 }
 
-// d3
-//   .select("body")
-//   .append(chart);
+d3.interval(
+  function () {
+    // const newNode = { id: `node_${nodes.length}` };
+    const source = nodes[Math.floor(Math.random() * nodes.length)];
+    // const newLink = { source, target: newNode };
+    // nodes.push(newNode);
+    // links.push(newLink);
+
+    spawnNode(source);
+
+    restart();
+  },
+  500,
+  d3.now() + 500
+);
+
+function restart() {
+  // Apply the general update pattern to the nodes.
+  node = node.data(nodes, function (d) {
+    return d.id;
+  });
+  node.exit().remove();
+  node = node
+    .enter()
+    .append("circle")
+    .attr("fill", function (d) {
+      return "green";
+    })
+    .attr("r", 8)
+    .merge(node);
+
+  // Apply the general update pattern to the links.
+  link = link.data(links, function (d) {
+    return d.source.id + "-" + d.target.id;
+  });
+  link.exit().remove();
+  link = link.enter().append("line").merge(link);
+
+  // Update and restart the simulation.
+  simulation.nodes(nodes);
+  simulation.force("link").links(links);
+  simulation.alpha(1).restart();
+}
+
+function ticked(node, link) {
+  node
+    .attr("cx", function (d) {
+      return d.x;
+    })
+    .attr("cy", function (d) {
+      return d.y;
+    });
+
+  link
+    .attr("x1", function (d) {
+      return d.source.x;
+    })
+    .attr("y1", function (d) {
+      return d.source.y;
+    })
+    .attr("x2", function (d) {
+      return d.target.x;
+    })
+    .attr("y2", function (d) {
+      return d.target.y;
+    });
+}
+
+function setupSvg() {
+  const width = 800;
+  const height = 800;
+
+  const svg = d3
+    .select("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .attr("viewBox", [-width / 2, -height / 2, width, height])
+    .attr("style", "max-width: 100%; height: auto; height: intrinsic;");
+
+  //   svg
+  //     .append("rect")
+  //     .attr("x", -width / 2)
+  //     .attr("y", -height / 2)
+  //     .attr("width", width)
+  //     .attr("height", height)
+  //     .attr("fill", "#F2EECB");
+  return svg;
+}
