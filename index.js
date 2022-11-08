@@ -172,9 +172,27 @@ function ForceGraph(
     .attr("class", "label")
     .attr("fill", "black")
     .text("Test text")
-    // .text(function (d) {
-    //   return d.name;
-    // });
+    .on("click", (node, datum) => {
+      //   { id: "Sub theme 4", group: 10, nodeRadius: 50 },
+      // ],
+      // links: [
+      //   { source: "Center theme", target: "Sub theme 1", value: 1 },
+
+      console.log(datum);
+
+      const newNode = structuredClone(datum);
+      newNode.id = "NEWNODEID";
+      newNode.index = 5;
+      const link = { source: datum, target: newNode, value: 1 };
+
+      console.log(newNode, link);
+
+      nodes.push(newNode);
+      links.push(link);
+
+      console.log(nodes);
+      console.log(links);
+    });
 
   if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
   if (L) link.attr("stroke", ({ index: i }) => L[i]);
