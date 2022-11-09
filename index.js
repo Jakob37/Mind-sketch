@@ -1,8 +1,11 @@
 const svg = setupSvg();
+const textElem = document.getElementById("text-input");
 
-const a = { id: "a" };
-const b = { id: "b" };
-const c = { id: "c" };
+console.log(textElem);
+
+const a = { id: "a", label: "Label A" };
+const b = { id: "b", label: "Label B" };
+const c = { id: "c", label: "Label C" };
 const nodeDatums = [a, b, c];
 const links = [];
 
@@ -109,7 +112,7 @@ function restart() {
   labelGroup = labelGroup
     .enter()
     .append("text")
-    .text("Content")
+    .text(function(d) {return d.label} )
     .merge(labelGroup);
 
   // node = node
