@@ -1,24 +1,40 @@
-const svg = setupSvg();
-const textElem = document.getElementById("text-input");
+import { setupSvg } from "./util";
+import * as d3 from "d3";
+
+interface Node {
+  id: string;
+  label: string;
+}
+
+interface Link {
+  source: Node;
+  target: Node;
+}
+
+const width = 400;
+const height = 400;
+const svg = setupSvg(width, height);
+const textElem = document.getElementById("text-input") as HTMLInputElement;
 
 console.log(textElem);
 
 const a = { id: "a", label: "Label A" };
 const b = { id: "b", label: "Label B" };
 const c = { id: "c", label: "Label C" };
-const nodeDatums = [a, b, c];
-const links = [];
+const nodeDatums: Node[] = [a, b, c];
+const links: Link[] = [];
 
 const circleRadius = 40;
 const nbrSteps = 50;
 
-const width = 400;
-const height = 400;
 let remainingSteps = 200;
 const circleColor = "#ccffcc";
 
 const circleDistance = 150;
 const chargeStrength = -1000;
+
+const xForce = -200;
+const yForce = -200;
 
 var svgGroup = svg
   .append("g")
@@ -38,15 +54,14 @@ var labelGroup = svgGroup
   .attr("fill", "black")
   .attr("text-anchor", "middle")
   .attr("dominant-baseline", "middle")
-  // .attr("stroke-width", 1.5)
   .selectAll(".label");
 
 var simulation = d3
   .forceSimulation(nodeDatums)
   .force("charge", d3.forceManyBody().strength(chargeStrength))
   .force("link", d3.forceLink(links).distance(circleDistance))
-  .force("x", d3.forceX(-200))
-  .force("y", d3.forceY(-200))
+  .force("x", d3.forceX(xForce))
+  .force("y", d3.forceY(yForce))
   .alphaTarget(1)
   .on("tick", function () {
     remainingSteps -= 1;
@@ -75,25 +90,7 @@ function spawnNode(source) {
   const newLink = { source, target: newNode };
   nodeDatums.push(newNode);
   links.push(newLink);
-
-  console.group("Resulting", nodeDatums, links);
 }
-
-// d3.interval(
-//   function () {
-//     // const newNode = { id: `node_${nodes.length}` };
-//     const source = nodes[Math.floor(Math.random() * nodes.length)];
-//     // const newLink = { source, target: newNode };
-//     // nodes.push(newNode);
-//     // links.push(newLink);
-
-//     spawnNode(source);
-
-//     restart();
-//   },
-//   500,
-//   d3.now() + 500
-// );
 
 function restart() {
   // Apply the general update pattern to the nodes.
@@ -178,25 +175,4 @@ function ticked(nodeGroup, linkGroup, labelGroup) {
     .attr("y", function (d) {
       return d.y;
     });
-}
-
-function setupSvg() {
-  const width = 800;
-  const height = 800;
-
-  const svg = d3
-    .select("svg")
-    .attr("width", width)
-    .attr("height", height)
-    .attr("viewBox", [-width / 2, -height / 2, width, height])
-    .attr("style", "max-width: 100%; height: auto; height: intrinsic;");
-
-  //   svg
-  //     .append("rect")
-  //     .attr("x", -width / 2)
-  //     .attr("y", -height / 2)
-  //     .attr("width", width)
-  //     .attr("height", height)
-  //     .attr("fill", "#F2EECB");
-  return svg;
 }
