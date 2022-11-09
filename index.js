@@ -9,12 +9,16 @@ const c = { id: "c", label: "Label C" };
 const nodeDatums = [a, b, c];
 const links = [];
 
-const circleRadius = 20;
+const circleRadius = 40;
 const nbrSteps = 50;
 
 const width = 400;
 const height = 400;
 let remainingSteps = 200;
+const circleColor = "#ccffcc";
+
+const circleDistance = 150;
+const chargeStrength = -1000;
 
 var svgGroup = svg
   .append("g")
@@ -32,13 +36,15 @@ var nodeGroup = svgGroup
 var labelGroup = svgGroup
   .append("g")
   .attr("fill", "black")
+  .attr("text-anchor", "middle")
+  .attr("dominant-baseline", "middle")
   // .attr("stroke-width", 1.5)
   .selectAll(".label");
 
 var simulation = d3
   .forceSimulation(nodeDatums)
-  .force("charge", d3.forceManyBody().strength(-1000))
-  .force("link", d3.forceLink(links).distance(100))
+  .force("charge", d3.forceManyBody().strength(chargeStrength))
+  .force("link", d3.forceLink(links).distance(circleDistance))
   .force("x", d3.forceX(-200))
   .force("y", d3.forceY(-200))
   .alphaTarget(1)
@@ -56,10 +62,15 @@ d3.timeout(function () {
   links.push({ source: b, target: c }); // Add b-c.
   links.push({ source: c, target: a }); // Add c-a.
   restart();
-}, 1000);
+}, 500);
 
 function spawnNode(source) {
-  const newNode = { id: `node_${nodeDatums.length}` };
+  const currText = textElem.value;
+
+  const newNode = {
+    id: `node_${nodeDatums.length}`,
+    label: currText != "" ? currText : "<empty>",
+  };
   // const source = nodes[Math.floor(Math.random() * nodes.length)];
   const newLink = { source, target: newNode };
   nodeDatums.push(newNode);
@@ -94,7 +105,7 @@ function restart() {
     .enter()
     .append("circle")
     .attr("fill", function (d) {
-      return "green";
+      return circleColor;
     })
     .attr("r", circleRadius)
     .on("click", function (_target, node) {
@@ -112,7 +123,9 @@ function restart() {
   labelGroup = labelGroup
     .enter()
     .append("text")
-    .text(function(d) {return d.label} )
+    .text(function (d) {
+      return d.label;
+    })
     .merge(labelGroup);
 
   // node = node
