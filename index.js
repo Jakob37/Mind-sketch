@@ -3,7 +3,7 @@ const svg = setupSvg();
 const a = { id: "a" };
 const b = { id: "b" };
 const c = { id: "c" };
-const nodes = [a, b, c];
+const nodeDatums = [a, b, c];
 const links = [];
 
 const circleRadius = 20;
@@ -13,22 +13,27 @@ const width = 400;
 const height = 400;
 let remainingSteps = 200;
 
-var g = svg
+var svgGroup = svg
   .append("g")
   .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
-var link = g
+var linkGroup = svgGroup
   .append("g")
   .attr("stroke", "#000")
   .attr("stroke-width", 1.5)
   .selectAll(".link");
-var node = g
+var nodeGroup = svgGroup
   .append("g")
   .attr("stroke", "#fff")
   .attr("stroke-width", 1.5)
   .selectAll(".node");
+var labelGroup = svgGroup
+  .append("g")
+  .attr("fill", "black")
+  // .attr("stroke-width", 1.5)
+  .selectAll(".label");
 
 var simulation = d3
-  .forceSimulation(nodes)
+  .forceSimulation(nodeDatums)
   .force("charge", d3.forceManyBody().strength(-1000))
   .force("link", d3.forceLink(links).distance(100))
   .force("x", d3.forceX(-200))
@@ -37,7 +42,7 @@ var simulation = d3
   .on("tick", function () {
     remainingSteps -= 1;
     if (remainingSteps > 0) {
-        ticked(node, link);
+      ticked(nodeGroup, linkGroup, labelGroup);
     }
   });
 
@@ -51,14 +56,13 @@ d3.timeout(function () {
 }, 1000);
 
 function spawnNode(source) {
-  console.log("Spawning node");
-  const newNode = { id: `node_${nodes.length}` };
+  const newNode = { id: `node_${nodeDatums.length}` };
   // const source = nodes[Math.floor(Math.random() * nodes.length)];
   const newLink = { source, target: newNode };
-  nodes.push(newNode);
+  nodeDatums.push(newNode);
   links.push(newLink);
 
-  console.group("Resulting", nodes, links);
+  console.group("Resulting", nodeDatums, links);
 }
 
 // d3.interval(
@@ -79,11 +83,11 @@ function spawnNode(source) {
 
 function restart() {
   // Apply the general update pattern to the nodes.
-  node = node.data(nodes, function (d) {
+  nodeGroup = nodeGroup.data(nodeDatums, function (d) {
     return d.id;
   });
-  node.exit().remove();
-  node = node
+  nodeGroup.exit().remove();
+  nodeGroup = nodeGroup
     .enter()
     .append("circle")
     .attr("fill", function (d) {
@@ -96,23 +100,40 @@ function restart() {
       remainingSteps = nbrSteps;
       restart();
     })
-    .merge(node);
+    .merge(nodeGroup);
+
+  labelGroup = labelGroup.data(nodeDatums, function (d) {
+    return d.id;
+  });
+  labelGroup.exit().remove();
+  labelGroup = labelGroup
+    .enter()
+    .append("text")
+    .text("Content")
+    .merge(labelGroup);
+
+  // node = node
+  //   .enter()
+  //   .append("text")
+  //   .text("test")
+  //   .attr("fill", "blue")
+  //   .merge(node);
 
   // Apply the general update pattern to the links.
-  link = link.data(links, function (d) {
+  linkGroup = linkGroup.data(links, function (d) {
     return d.source.id + "-" + d.target.id;
   });
-  link.exit().remove();
-  link = link.enter().append("line").merge(link);
+  linkGroup.exit().remove();
+  linkGroup = linkGroup.enter().append("line").merge(linkGroup);
 
   // Update and restart the simulation.
-  simulation.nodes(nodes);
+  simulation.nodes(nodeDatums);
   simulation.force("link").links(links);
   simulation.alpha(1).restart();
 }
 
-function ticked(node, link) {
-  node
+function ticked(nodeGroup, linkGroup, labelGroup) {
+  nodeGroup
     .attr("cx", function (d) {
       return d.x;
     })
@@ -120,7 +141,7 @@ function ticked(node, link) {
       return d.y;
     });
 
-  link
+  linkGroup
     .attr("x1", function (d) {
       return d.source.x;
     })
@@ -132,6 +153,14 @@ function ticked(node, link) {
     })
     .attr("y2", function (d) {
       return d.target.y;
+    });
+
+  labelGroup
+    .attr("x", function (d) {
+      return d.x;
+    })
+    .attr("y", function (d) {
+      return d.y;
     });
 }
 
