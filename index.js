@@ -6,8 +6,12 @@ const c = { id: "c" };
 const nodes = [a, b, c];
 const links = [];
 
+const circleRadius = 20;
+const nbrSteps = 50;
+
 const width = 400;
 const height = 400;
+let remainingSteps = 200;
 
 var g = svg
   .append("g")
@@ -22,8 +26,6 @@ var node = g
   .attr("stroke", "#fff")
   .attr("stroke-width", 1.5)
   .selectAll(".node");
-
-let remainingSteps = 200;
 
 var simulation = d3
   .forceSimulation(nodes)
@@ -87,11 +89,11 @@ function restart() {
     .attr("fill", function (d) {
       return "green";
     })
-    .attr("r", 8)
+    .attr("r", circleRadius)
     .on("click", function (_target, node) {
       console.log("Clicking");
       spawnNode(node);
-      remainingSteps = 50;
+      remainingSteps = nbrSteps;
       restart();
     })
     .merge(node);
