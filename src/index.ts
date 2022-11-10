@@ -57,12 +57,12 @@ var linkGroup = svgGroup
   .attr("stroke", "#000")
   .attr("stroke-width", 1.5)
   .selectAll(".link");
-var nodeGroup: d3.Selection<NodePos> = svgGroup
+var nodeGroup: d3.Selection<SVGCircleElement, NodePos, any, any> = svgGroup
   .append("g")
   .attr("stroke", "#fff")
   .attr("stroke-width", 1.5)
   .selectAll(".node");
-var labelGroup = svgGroup
+var labelGroup: d3.Selection<SVGTextElement, NodePos, any, any> = svgGroup
   .append("g")
   .attr("fill", "black")
   .attr("text-anchor", "middle")
@@ -111,7 +111,7 @@ function restart() {
     return d.id;
   });
   updateNodeGroup.exit().remove();
-  nodeGroup = updateNodeGroup
+  const nodePosGroup = updateNodeGroup
     .enter()
     .append("circle")
     .attr("fill", function (d) {
@@ -130,7 +130,7 @@ function restart() {
     return d.id;
   });
   updateLabelGroup.exit().remove();
-  labelGroup = updateLabelGroup
+  const labelPosGroup = updateLabelGroup
     .enter()
     .append("text")
     .text(function (d) {

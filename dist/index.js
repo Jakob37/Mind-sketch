@@ -1,5 +1,5 @@
 import { setupSvg } from "./util.js";
-import * as d3f from "d3-force";
+// import * as d3 from "./d3-force.min.js";
 var width = 400;
 var height = 400;
 var svg = setupSvg(width, height);
@@ -37,12 +37,12 @@ var labelGroup = svgGroup
     .attr("text-anchor", "middle")
     .attr("dominant-baseline", "middle")
     .selectAll(".label");
-var simulation = d3f
+var simulation = d3
     .forceSimulation(nodeDatums)
-    .force("charge", d3f.forceManyBody().strength(chargeStrength))
-    .force("link", d3f.forceLink(links).distance(circleDistance))
-    .force("x", d3f.forceX(xForce))
-    .force("y", d3f.forceY(yForce))
+    .force("charge", d3.forceManyBody().strength(chargeStrength))
+    .force("link", d3.forceLink(links).distance(circleDistance))
+    .force("x", d3.forceX(xForce))
+    .force("y", d3.forceY(yForce))
     .alphaTarget(1)
     .on("tick", function () {
     remainingSteps -= 1;
@@ -74,7 +74,7 @@ function restart() {
         return d.id;
     });
     updateNodeGroup.exit().remove();
-    nodeGroup = updateNodeGroup
+    var nodePosGroup = updateNodeGroup
         .enter()
         .append("circle")
         .attr("fill", function (d) {
@@ -92,7 +92,7 @@ function restart() {
         return d.id;
     });
     updateLabelGroup.exit().remove();
-    labelGroup = updateLabelGroup
+    var labelPosGroup = updateLabelGroup
         .enter()
         .append("text")
         .text(function (d) {
@@ -145,3 +145,4 @@ function ticked(nodeGroup, linkGroup, labelGroup) {
         return d.y;
     });
 }
+//# sourceMappingURL=index.js.map
