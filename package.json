@@ -11,7 +11,9 @@
   "author": "Jakob Willforss",
   "license": "ISC",
   "dependencies": {
+    "@types/d3-force": "^3.0.3",
     "d3": "^7.6.1",
+    "d3-force": "^3.0.0",
     "http-server": "^14.1.1",
     "webpack-dev-server": "^4.11.1"
   },

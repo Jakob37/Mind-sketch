@@ -1,14 +1,27 @@
 import { setupSvg } from "./util";
 import * as d3 from "d3";
+import * as d3f from "d3-force";
 
 interface Node {
   id: string;
   label: string;
 }
 
+interface NodePos {
+  id: string;
+  label: string;
+  x: number;
+  y: number;
+}
+
 interface Link {
   source: Node;
   target: Node;
+}
+
+interface LinkPos {
+  source: NodePos;
+  target: NodePos;
 }
 
 const width = 400;
@@ -56,12 +69,12 @@ var labelGroup = svgGroup
   .attr("dominant-baseline", "middle")
   .selectAll(".label");
 
-var simulation = d3
-  .forceSimulation(nodeDatums)
-  .force("charge", d3.forceManyBody().strength(chargeStrength))
-  .force("link", d3.forceLink(links).distance(circleDistance))
-  .force("x", d3.forceX(xForce))
-  .force("y", d3.forceY(yForce))
+var simulation = d3f
+  .forceSimulation(nodeDatums as d3f.SimulationNodeDatum[])
+  .force("charge", d3f.forceManyBody().strength(chargeStrength))
+  .force("link", d3f.forceLink(links).distance(circleDistance))
+  .force("x", d3f.forceX(xForce))
+  .force("y", d3f.forceY(yForce))
   .alphaTarget(1)
   .on("tick", function () {
     remainingSteps -= 1;
@@ -70,16 +83,16 @@ var simulation = d3
     }
   });
 
+// restart();
+
+// d3.timeout(function () {
+links.push({ source: a, target: b }); // Add a-b.
+links.push({ source: b, target: c }); // Add b-c.
+links.push({ source: c, target: a }); // Add c-a.
 restart();
+// }, 500);
 
-d3.timeout(function () {
-  links.push({ source: a, target: b }); // Add a-b.
-  links.push({ source: b, target: c }); // Add b-c.
-  links.push({ source: c, target: a }); // Add c-a.
-  restart();
-}, 500);
-
-function spawnNode(source) {
+function spawnNode(source: Node) {
   const currText = textElem.value;
 
   const newNode = {
@@ -140,12 +153,16 @@ function restart() {
   linkGroup = linkGroup.enter().append("line").merge(linkGroup);
 
   // Update and restart the simulation.
-  simulation.nodes(nodeDatums);
+  simulation.nodes(nodeDatums as d3f.SimulationNodeDatum[]);
   simulation.force("link").links(links);
   simulation.alpha(1).restart();
 }
 
-function ticked(nodeGroup, linkGroup, labelGroup) {
+function ticked(
+  nodeGroup: d3.Selection<NodePos>,
+  linkGroup: d3.Selection<LinkPos>,
+  labelGroup: d3.Selection<NodePos>
+) {
   nodeGroup
     .attr("cx", function (d) {
       return d.x;
