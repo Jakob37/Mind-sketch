@@ -1,7 +1,4 @@
-"use strict";
-exports.__esModule = true;
-exports.setupSvg = void 0;
-var d3 = require("d3");
+import * as d3 from 'd3';
 function setupSvg(width, height) {
     var newSvg = d3
         .select("svg")
@@ -11,4 +8,4 @@ function setupSvg(width, height) {
         .attr("style", "max-width: 100%; height: auto; height: intrinsic;");
     return newSvg;
 }
-exports.setupSvg = setupSvg;
+export { setupSvg };

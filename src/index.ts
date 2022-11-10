@@ -57,7 +57,7 @@ var linkGroup = svgGroup
   .attr("stroke", "#000")
   .attr("stroke-width", 1.5)
   .selectAll(".link");
-var nodeGroup = svgGroup
+var nodeGroup: d3.Selection<NodePos> = svgGroup
   .append("g")
   .attr("stroke", "#fff")
   .attr("stroke-width", 1.5)
@@ -72,7 +72,7 @@ var labelGroup = svgGroup
 var simulation = d3f
   .forceSimulation(nodeDatums as d3f.SimulationNodeDatum[])
   .force("charge", d3f.forceManyBody().strength(chargeStrength))
-  .force("link", d3f.forceLink(links).distance(circleDistance))
+  .force("link", d3f.forceLink(links as d3f.SimulationLinkDatum<d3f.SimulationNodeDatum>[]).distance(circleDistance))
   .force("x", d3f.forceX(xForce))
   .force("y", d3f.forceY(yForce))
   .alphaTarget(1)
@@ -107,11 +107,11 @@ function spawnNode(source: Node) {
 
 function restart() {
   // Apply the general update pattern to the nodes.
-  nodeGroup = nodeGroup.data(nodeDatums, function (d) {
+  const updateNodeGroup = nodeGroup.data(nodeDatums, function (d) {
     return d.id;
   });
-  nodeGroup.exit().remove();
-  nodeGroup = nodeGroup
+  updateNodeGroup.exit().remove();
+  nodeGroup = updateNodeGroup
     .enter()
     .append("circle")
     .attr("fill", function (d) {
@@ -126,11 +126,11 @@ function restart() {
     })
     .merge(nodeGroup);
 
-  labelGroup = labelGroup.data(nodeDatums, function (d) {
+  const updateLabelGroup = labelGroup.data(nodeDatums, function (d) {
     return d.id;
   });
-  labelGroup.exit().remove();
-  labelGroup = labelGroup
+  updateLabelGroup.exit().remove();
+  labelGroup = updateLabelGroup
     .enter()
     .append("text")
     .text(function (d) {
@@ -146,11 +146,11 @@ function restart() {
   //   .merge(node);
 
   // Apply the general update pattern to the links.
-  linkGroup = linkGroup.data(links, function (d) {
+  const updateLinkGroup = linkGroup.data(links, function (d) {
     return d.source.id + "-" + d.target.id;
   });
-  linkGroup.exit().remove();
-  linkGroup = linkGroup.enter().append("line").merge(linkGroup);
+  updateLinkGroup.exit().remove();
+  linkGroup = updateLinkGroup.enter().append("line").merge(linkGroup);
 
   // Update and restart the simulation.
   simulation.nodes(nodeDatums as d3f.SimulationNodeDatum[]);

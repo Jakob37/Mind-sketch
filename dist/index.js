@@ -1,10 +1,8 @@
-"use strict";
-exports.__esModule = true;
-var util_1 = require("./util");
-var d3 = require("d3");
+import { setupSvg } from "./util.js";
+import * as d3f from "d3-force";
 var width = 400;
 var height = 400;
-var svg = (0, util_1.setupSvg)(width, height);
+var svg = setupSvg(width, height);
 var textElem = document.getElementById("text-input");
 console.log(textElem);
 var a = { id: "a", label: "Label A" };
@@ -39,12 +37,12 @@ var labelGroup = svgGroup
     .attr("text-anchor", "middle")
     .attr("dominant-baseline", "middle")
     .selectAll(".label");
-var simulation = d3
+var simulation = d3f
     .forceSimulation(nodeDatums)
-    .force("charge", d3.forceManyBody().strength(chargeStrength))
-    .force("link", d3.forceLink(links).distance(circleDistance))
-    .force("x", d3.forceX(xForce))
-    .force("y", d3.forceY(yForce))
+    .force("charge", d3f.forceManyBody().strength(chargeStrength))
+    .force("link", d3f.forceLink(links).distance(circleDistance))
+    .force("x", d3f.forceX(xForce))
+    .force("y", d3f.forceY(yForce))
     .alphaTarget(1)
     .on("tick", function () {
     remainingSteps -= 1;
@@ -52,18 +50,18 @@ var simulation = d3
         ticked(nodeGroup, linkGroup, labelGroup);
     }
 });
+// restart();
+// d3.timeout(function () {
+links.push({ source: a, target: b }); // Add a-b.
+links.push({ source: b, target: c }); // Add b-c.
+links.push({ source: c, target: a }); // Add c-a.
 restart();
-d3.timeout(function () {
-    links.push({ source: a, target: b }); // Add a-b.
-    links.push({ source: b, target: c }); // Add b-c.
-    links.push({ source: c, target: a }); // Add c-a.
-    restart();
-}, 500);
+// }, 500);
 function spawnNode(source) {
     var currText = textElem.value;
     var newNode = {
         id: "node_".concat(nodeDatums.length),
-        label: currText != "" ? currText : "<empty>"
+        label: currText != "" ? currText : "<empty>",
     };
     // const source = nodes[Math.floor(Math.random() * nodes.length)];
     var newLink = { source: source, target: newNode };
@@ -72,11 +70,11 @@ function spawnNode(source) {
 }
 function restart() {
     // Apply the general update pattern to the nodes.
-    nodeGroup = nodeGroup.data(nodeDatums, function (d) {
+    var updateNodeGroup = nodeGroup.data(nodeDatums, function (d) {
         return d.id;
     });
-    nodeGroup.exit().remove();
-    nodeGroup = nodeGroup
+    updateNodeGroup.exit().remove();
+    nodeGroup = updateNodeGroup
         .enter()
         .append("circle")
         .attr("fill", function (d) {
@@ -90,11 +88,11 @@ function restart() {
         restart();
     })
         .merge(nodeGroup);
-    labelGroup = labelGroup.data(nodeDatums, function (d) {
+    var updateLabelGroup = labelGroup.data(nodeDatums, function (d) {
         return d.id;
     });
-    labelGroup.exit().remove();
-    labelGroup = labelGroup
+    updateLabelGroup.exit().remove();
+    labelGroup = updateLabelGroup
         .enter()
         .append("text")
         .text(function (d) {
@@ -108,11 +106,11 @@ function restart() {
     //   .attr("fill", "blue")
     //   .merge(node);
     // Apply the general update pattern to the links.
-    linkGroup = linkGroup.data(links, function (d) {
+    var updateLinkGroup = linkGroup.data(links, function (d) {
         return d.source.id + "-" + d.target.id;
     });
-    linkGroup.exit().remove();
-    linkGroup = linkGroup.enter().append("line").merge(linkGroup);
+    updateLinkGroup.exit().remove();
+    linkGroup = updateLinkGroup.enter().append("line").merge(linkGroup);
     // Update and restart the simulation.
     simulation.nodes(nodeDatums);
     simulation.force("link").links(links);
