@@ -1,8 +1,8 @@
 import { LinkDatum, NodeDatum } from "./types";
 
 const settings = {
-  width: 400,
-  height: 400,
+  width: 800,
+  height: 800,
   circleRadius: 40,
   nbrSteps: 50,
   circleDistance: 150,

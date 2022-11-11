@@ -5,7 +5,12 @@ import { BaseType } from "d3";
 import { LinkDatum, LinkPos, NodeDatum, NodePos } from "./types";
 import { nodeDatums, settings } from "./data";
 
-const svg = setupSvg(settings.width, settings.height);
+const svg = d3.select("svg");
+setupSvg(
+  svg as d3.Selection<SVGElement, any, HTMLElement, any>,
+  settings.width,
+  settings.height
+);
 const textElem = document.getElementById("text-input") as HTMLInputElement;
 
 const linkDatums: LinkDatum[] = [];
@@ -65,6 +70,9 @@ function refreshSimulation() {
     return d.id;
   });
   updateNodeGroup.exit().remove();
+
+  console.log("nodedatums", nodeDatums);
+  console.log("updateNodeGroup", updateNodeGroup);
 
   updateNodeGroup = updateNodeGroup
     .enter()

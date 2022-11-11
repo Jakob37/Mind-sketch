@@ -1,14 +1,26 @@
 import { BaseType, select as d3select } from "d3";
 import { LinkDatum, LinkPos, NodeDatum, NodePos } from "./types";
 
-function setupSvg(width: number, height: number) {
-  const newSvg = d3select("svg")
+function setupSvg(
+  svg: d3.Selection<SVGElement, any, HTMLElement, any>,
+  width: number,
+  height: number
+) {
+  console.log("width height", width, height);
+
+  svg
     .attr("width", width)
     .attr("height", height)
-    .attr("viewBox", [-width / 2, -height / 2, width, height])
-    .attr("style", "max-width: 100%; height: auto; height: intrinsic;");
+    .attr("viewBox", [-width / 2, -height / 2, width, height]);
+  // .attr("style", "max-width: 100%; height: auto; height: intrinsic;");
 
-  return newSvg;
+  svg
+    .append("rect")
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("width", 100)
+    .attr("height", 100)
+    .attr("color", "gray");
 }
 
 function ticked(
