@@ -1,6 +1,7 @@
 import { setupSvg } from "./util";
 import * as d3 from "d3";
 import * as d3f from "d3-force";
+import { BaseType } from "d3";
 
 interface Node {
   id: string;
@@ -52,7 +53,7 @@ const yForce = -200;
 var svgGroup = svg
   .append("g")
   .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
-var linkGroup = svgGroup
+var linkGroup: d3.Selection<BaseType, LinkPos, any, any> = svgGroup
   .append("g")
   .attr("stroke", "#000")
   .attr("stroke-width", 1.5)
@@ -149,19 +150,22 @@ function restart() {
   const updateLinkGroup = linkGroup.data(links, function (d) {
     return d.source.id + "-" + d.target.id;
   });
+  console.log("updateLinkGroup", updateLinkGroup);
   updateLinkGroup.exit().remove();
-  linkGroup = updateLinkGroup.enter().append("line").merge(linkGroup);
+
+  // FIXME:
+  // linkGroup = updateLinkGroup.enter().append("line").merge(linkGroup);
 
   // Update and restart the simulation.
   simulation.nodes(nodeDatums as d3f.SimulationNodeDatum[]);
-  simulation.force("link").links(links);
+  // simulation.force("link").links(links);
   simulation.alpha(1).restart();
 }
 
 function ticked(
-  nodeGroup: d3.Selection<NodePos>,
-  linkGroup: d3.Selection<LinkPos>,
-  labelGroup: d3.Selection<NodePos>
+  nodeGroup: d3.Selection<SVGCircleElement, NodePos, any, any>,
+  linkGroup: d3.Selection<BaseType, LinkPos, any, any>,
+  labelGroup: d3.Selection<BaseType, NodePos, any, any>
 ) {
   nodeGroup
     .attr("cx", function (d) {
