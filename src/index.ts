@@ -12,6 +12,7 @@ const linkDatums: LinkDatum[] = [];
 
 let remainingSteps = 200;
 
+// Set up D3 groups
 var svgGroup = svg
   .append("g")
   .attr(
@@ -20,13 +21,13 @@ var svgGroup = svg
   );
 var linkGroup: d3.Selection<BaseType, LinkPos, any, any> = svgGroup
   .append("g")
-  .attr("stroke", "#000")
-  .attr("stroke-width", 1.5)
+  .attr("stroke", settings.linkColor)
+  .attr("stroke-width", settings.strokeWidth)
   .selectAll(".link");
 var nodeGroup: d3.Selection<SVGCircleElement, NodePos, any, any> = svgGroup
   .append("g")
-  .attr("stroke", "#fff")
-  .attr("stroke-width", 1.5)
+  .attr("stroke", settings.strokeColor)
+  .attr("stroke-width", settings.strokeWidth)
   .selectAll(".node");
 var labelGroup: d3.Selection<SVGTextElement, NodePos, any, any> = svgGroup
   .append("g")
@@ -41,7 +42,9 @@ var simulation = d3f
   .force(
     "link",
     d3f
-      .forceLink(linkDatums as d3f.SimulationLinkDatum<d3f.SimulationNodeDatum>[])
+      .forceLink(
+        linkDatums as d3f.SimulationLinkDatum<d3f.SimulationNodeDatum>[]
+      )
       .distance(settings.circleDistance)
   )
   .force("x", d3f.forceX(settings.xForce))
@@ -51,18 +54,19 @@ var simulation = d3f
     remainingSteps -= 1;
     if (remainingSteps > 0) {
       ticked(nodeGroup, linkGroup, labelGroup);
+      // ticked(nodeGroup, linkGroup, labelGroup);
     }
   });
 
 refreshSimulation();
 
 function refreshSimulation() {
-  // Apply the general update pattern to the nodes.
-  const updateNodeGroup = nodeGroup.data(nodeDatums, function (d) {
+  let updateNodeGroup = nodeGroup.data(nodeDatums, function (d) {
     return d.id;
   });
   updateNodeGroup.exit().remove();
-  const nodePosGroup = updateNodeGroup
+
+  updateNodeGroup = updateNodeGroup
     .enter()
     .append("circle")
     .attr("fill", function (d) {
@@ -77,24 +81,24 @@ function refreshSimulation() {
     })
     .merge(nodeGroup);
 
-  const updateLabelGroup = labelGroup.data(nodeDatums, function (d) {
-    return d.id;
-  });
-  updateLabelGroup.exit().remove();
-  const labelPosGroup = updateLabelGroup
-    .enter()
-    .append("text")
-    .text(function (d) {
-      return d.label;
-    })
-    .merge(labelGroup);
+  // const updateLabelGroup = labelGroup.data(nodeDatums, function (d) {
+  //   return d.id;
+  // });
+  // updateLabelGroup.exit().remove();
+  // const labelPosGroup = updateLabelGroup
+  //   .enter()
+  //   .append("text")
+  //   .text(function (d) {
+  //     return d.label;
+  //   })
+  //   .merge(labelGroup);
 
-  // Apply the general update pattern to the links.
-  const updateLinkGroup = linkGroup.data(linkDatums, function (d) {
-    return d.source.id + "-" + d.target.id;
-  });
-  console.log("updateLinkGroup", updateLinkGroup);
-  updateLinkGroup.exit().remove();
+  // // Apply the general update pattern to the links.
+  // const updateLinkGroup = linkGroup.data(linkDatums, function (d) {
+  //   return d.source.id + "-" + d.target.id;
+  // });
+  // console.log("updateLinkGroup", updateLinkGroup);
+  // updateLinkGroup.exit().remove();
 
   // FIXME:
   // linkGroup = updateLinkGroup.enter().append("line").merge(linkGroup);

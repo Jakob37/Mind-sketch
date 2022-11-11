@@ -10,6 +10,9 @@ const settings = {
   xForce: -200,
   yForce: -200,
   circleColor: "#ccffcc",
+  strokeWidth: 1.5,
+  strokeColor: "#fff",
+  linkColor: "#000",
 };
 
 const a = { id: "a", label: "Label A" };
