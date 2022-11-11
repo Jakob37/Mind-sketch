@@ -1,5 +1,5 @@
-import { BaseType, select as d3select } from 'd3';
-import { LinkPos, NodePos } from './types';
+import { BaseType, select as d3select } from "d3";
+import { LinkDatum, LinkPos, NodeDatum, NodePos } from "./types";
 
 function setupSvg(width: number, height: number) {
   const newSvg = d3select("svg")
@@ -47,5 +47,22 @@ function ticked(
     });
 }
 
+function spawnNode(
+  source: NodeDatum,
+  textElem: HTMLInputElement,
+  nodeDatums: NodeDatum[],
+  links: LinkDatum[]
+) {
+  const currText = textElem.value;
 
-export { setupSvg, ticked };
+  const newNode = {
+    id: `node_${nodeDatums.length}`,
+    label: currText != "" ? currText : "<empty>",
+  };
+  // const source = nodes[Math.floor(Math.random() * nodes.length)];
+  const newLink = { source, target: newNode };
+  nodeDatums.push(newNode);
+  links.push(newLink);
+}
+
+export { setupSvg, ticked, spawnNode };

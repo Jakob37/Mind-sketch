@@ -1,4 +1,4 @@
-interface Node {
+interface NodeDatum {
   id: string;
   label: string;
 }
@@ -10,9 +10,9 @@ interface NodePos {
   y: number;
 }
 
-interface Link {
-  source: Node;
-  target: Node;
+interface LinkDatum {
+  source: NodeDatum;
+  target: NodeDatum;
 }
 
 interface LinkPos {
@@ -20,4 +20,4 @@ interface LinkPos {
   target: NodePos;
 }
 
-export { Node, NodePos, Link, LinkPos };
+export { NodeDatum, NodePos, LinkDatum, LinkPos };
