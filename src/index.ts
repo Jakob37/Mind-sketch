@@ -38,17 +38,17 @@ const c = { id: "c", label: "Label C" };
 const nodeDatums: Node[] = [a, b, c];
 const links: Link[] = [];
 
-const circleRadius = 40;
-const nbrSteps = 50;
+const settings = {
+  circleRadius: 40,
+  nbrSteps: 50,
+  circleDistance: 150,
+  chargeStrength: -1000,
+  xForce: -200,
+  yForce: -200,
+  circleColor: "#ccffcc",
+}
 
 let remainingSteps = 200;
-const circleColor = "#ccffcc";
-
-const circleDistance = 150;
-const chargeStrength = -1000;
-
-const xForce = -200;
-const yForce = -200;
 
 var svgGroup = svg
   .append("g")
@@ -72,10 +72,10 @@ var labelGroup: d3.Selection<SVGTextElement, NodePos, any, any> = svgGroup
 
 var simulation = d3f
   .forceSimulation(nodeDatums as d3f.SimulationNodeDatum[])
-  .force("charge", d3f.forceManyBody().strength(chargeStrength))
-  .force("link", d3f.forceLink(links as d3f.SimulationLinkDatum<d3f.SimulationNodeDatum>[]).distance(circleDistance))
-  .force("x", d3f.forceX(xForce))
-  .force("y", d3f.forceY(yForce))
+  .force("charge", d3f.forceManyBody().strength(settings.chargeStrength))
+  .force("link", d3f.forceLink(links as d3f.SimulationLinkDatum<d3f.SimulationNodeDatum>[]).distance(settings.circleDistance))
+  .force("x", d3f.forceX(settings.xForce))
+  .force("y", d3f.forceY(settings.yForce))
   .alphaTarget(1)
   .on("tick", function () {
     remainingSteps -= 1;
@@ -116,13 +116,13 @@ function restart() {
     .enter()
     .append("circle")
     .attr("fill", function (d) {
-      return circleColor;
+      return settings.circleColor;
     })
-    .attr("r", circleRadius)
+    .attr("r", settings.circleRadius)
     .on("click", function (_target, node) {
       console.log("Clicking");
       spawnNode(node);
-      remainingSteps = nbrSteps;
+      remainingSteps = settings.nbrSteps;
       restart();
     })
     .merge(nodeGroup);
