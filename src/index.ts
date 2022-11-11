@@ -1,58 +1,21 @@
-import { setupSvg } from "./util";
+import { setupSvg, ticked } from "./util";
 import * as d3 from "d3";
 import * as d3f from "d3-force";
 import { BaseType } from "d3";
+import { Link, LinkPos, Node, NodePos } from "./types";
+import { nodeDatums, settings } from "./data";
 
-interface Node {
-  id: string;
-  label: string;
-}
-
-interface NodePos {
-  id: string;
-  label: string;
-  x: number;
-  y: number;
-}
-
-interface Link {
-  source: Node;
-  target: Node;
-}
-
-interface LinkPos {
-  source: NodePos;
-  target: NodePos;
-}
-
-const width = 400;
-const height = 400;
-const svg = setupSvg(width, height);
+const svg = setupSvg(settings.width, settings.height);
 const textElem = document.getElementById("text-input") as HTMLInputElement;
 
-console.log(textElem);
 
-const a = { id: "a", label: "Label A" };
-const b = { id: "b", label: "Label B" };
-const c = { id: "c", label: "Label C" };
-const nodeDatums: Node[] = [a, b, c];
 const links: Link[] = [];
-
-const settings = {
-  circleRadius: 40,
-  nbrSteps: 50,
-  circleDistance: 150,
-  chargeStrength: -1000,
-  xForce: -200,
-  yForce: -200,
-  circleColor: "#ccffcc",
-}
 
 let remainingSteps = 200;
 
 var svgGroup = svg
   .append("g")
-  .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+  .attr("transform", "translate(" + settings.width / 2 + "," + settings.height / 2 + ")");
 var linkGroup: d3.Selection<BaseType, LinkPos, any, any> = svgGroup
   .append("g")
   .attr("stroke", "#000")
@@ -87,9 +50,6 @@ var simulation = d3f
 // restart();
 
 // d3.timeout(function () {
-links.push({ source: a, target: b }); // Add a-b.
-links.push({ source: b, target: c }); // Add b-c.
-links.push({ source: c, target: a }); // Add c-a.
 restart();
 // }, 500);
 
@@ -162,38 +122,3 @@ function restart() {
   simulation.alpha(1).restart();
 }
 
-function ticked(
-  nodeGroup: d3.Selection<SVGCircleElement, NodePos, any, any>,
-  linkGroup: d3.Selection<BaseType, LinkPos, any, any>,
-  labelGroup: d3.Selection<BaseType, NodePos, any, any>
-) {
-  nodeGroup
-    .attr("cx", function (d) {
-      return d.x;
-    })
-    .attr("cy", function (d) {
-      return d.y;
-    });
-
-  linkGroup
-    .attr("x1", function (d) {
-      return d.source.x;
-    })
-    .attr("y1", function (d) {
-      return d.source.y;
-    })
-    .attr("x2", function (d) {
-      return d.target.x;
-    })
-    .attr("y2", function (d) {
-      return d.target.y;
-    });
-
-  labelGroup
-    .attr("x", function (d) {
-      return d.x;
-    })
-    .attr("y", function (d) {
-      return d.y;
-    });
-}
