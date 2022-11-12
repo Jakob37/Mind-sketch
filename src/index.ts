@@ -1,27 +1,31 @@
-// import { setupSvg, spawnNode, ticked } from "./util";
+import { setupSvg, spawnNode, ticked } from "./util";
 import * as d3 from "d3";
-// import * as d3f from "d3-force";
-// import { BaseType } from "d3";
-// import { LinkDatum, LinkPos, NodeDatum, NodePos } from "./types";
-// import { nodeDatums, settings } from "./data";
+import * as d3f from "d3-force";
+import { BaseType } from "d3";
+import { LinkDatum, LinkPos, NodeDatum, NodePos } from "./types";
+import { nodeDatums, settings } from "./data";
 
-const root = document.getElementById("root");
+// const root = document.getElementById("root");
 // const svgElem = document.createElementNS('http://www.w3.org/2000/svg','svg');
 // root.appendChild(svgElem);
 // const svg = d3.select(svgElem);
 
-console.log("Printing document", document.body);
+const svg = d3.select("#canvas");
+svg.attr("width", 800);
+svg.attr("height", 800);
 
-const textElem = document.getElementById("text")
-console.log("Before", textElem);
-textElem.textContent = "Updated!"
-console.log("After", textElem);
+console.log("svg", svg);
 
-const di = document.createElement("div")
-di.innerText = "Hello";
-root.appendChild(di)
+// const textElem = document.getElementById("text")
+// console.log("Before", textElem);
+// textElem.textContent = "Updated!"
+// console.log("After", textElem);
 
-root.innerHTML = "Hello test"
+// const di = document.createElement("div")
+// di.innerText = "Hello";
+// root.appendChild(di)
+
+// root.innerHTML = "Hello test"
 
 // const div = d
 
