@@ -6,21 +6,19 @@ function setupSvg(
   width: number,
   height: number
 ) {
-  console.log("width height", width, height);
-
   svg
     .attr("width", width)
     .attr("height", height)
-    .attr("viewBox", [-width / 2, -height / 2, width, height]);
-  // .attr("style", "max-width: 100%; height: auto; height: intrinsic;");
+    .attr("viewBox", [-width / 2, -height / 2, width, height])
+    .attr("style", "max-width: 100%; height: auto; height: intrinsic;");
 
   svg
     .append("rect")
-    .attr("x", 0)
-    .attr("y", 0)
-    .attr("width", 100)
-    .attr("height", 100)
-    .attr("color", "gray");
+    .attr("x", -width / 2)
+    .attr("y", -height / 2)
+    .attr("width", width)
+    .attr("height", height)
+    .attr("fill", "lightgray");
 }
 
 function ticked(
