@@ -69,12 +69,17 @@ var simulation = d3f
 refreshSimulation();
 
 function refreshSimulation() {
-  let updateNodeGroup = nodeGroup.data(nodeDatums, function (d) {
+
+  console.log("Starting datums", nodeDatums);
+
+  let nodeDatumGroup = nodeGroup.data(nodeDatums, function (d) {
     return d.id;
   });
-  updateNodeGroup.exit().remove();
+  nodeDatumGroup.exit().remove();
 
-  updateNodeGroup = updateNodeGroup
+  // console.log("updateNodeGroup", updateNodeGroup);
+
+  nodeGroup = nodeDatumGroup
     .enter()
     .append("circle")
     .attr("fill", function (d) {
@@ -89,24 +94,24 @@ function refreshSimulation() {
     })
     .merge(nodeGroup);
 
-  const updateLabelGroup = labelGroup.data(nodeDatums, function (d) {
-    return d.id;
-  });
-  updateLabelGroup.exit().remove();
-  const labelPosGroup = updateLabelGroup
-    .enter()
-    .append("text")
-    .text(function (d) {
-      return d.label;
-    })
-    .merge(labelGroup);
+  // const updateLabelGroup = labelGroup.data(nodeDatums, function (d) {
+  //   return d.id;
+  // });
+  // updateLabelGroup.exit().remove();
+  // const labelPosGroup = updateLabelGroup
+  //   .enter()
+  //   .append("text")
+  //   .text(function (d) {
+  //     return d.label;
+  //   })
+  //   .merge(labelGroup);
 
   // Apply the general update pattern to the links.
-  const updateLinkGroup = linkGroup.data(linkDatums, function (d) {
-    return d.source.id + "-" + d.target.id;
-  });
-  console.log("updateLinkGroup", updateLinkGroup);
-  updateLinkGroup.exit().remove();
+  // const updateLinkGroup = linkGroup.data(linkDatums, function (d) {
+  //   return d.source.id + "-" + d.target.id;
+  // });
+  // console.log("updateLinkGroup", updateLinkGroup);
+  // updateLinkGroup.exit().remove();
 
   FIXME:
   // linkGroup = updateLinkGroup.enter().append("line").merge(linkGroup);

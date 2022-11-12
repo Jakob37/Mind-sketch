@@ -26,11 +26,14 @@ function ticked(
   linkGroup: d3.Selection<BaseType, LinkPos, any, any>,
   labelGroup: d3.Selection<BaseType, NodePos, any, any>
 ) {
+  console.log("Ticking");
   nodeGroup
     .attr("cx", function (d) {
+      console.log("Assingning cx", d.x);
       return d.x;
     })
     .attr("cy", function (d) {
+      console.log("Assingning cy", d.y);
       return d.y;
     });
 
