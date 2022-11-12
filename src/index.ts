@@ -2,8 +2,9 @@ import { setupSvg, spawnNode, ticked } from "./util";
 import * as d3 from "d3";
 import * as d3f from "d3-force";
 import { BaseType } from "d3";
-import { LinkDatum, LinkPos, NodeDatum, NodePos } from "./types";
-import { nodeDatums, settings } from "./data";
+import { LinkPos, NodePos } from "./types";
+import { linkDatums, nodeDatums, settings } from "./data";
+import { refreshLabels, refreshLinks, refreshNodes } from "./simulation";
 
 const svg = d3.select("#canvas");
 
@@ -17,7 +18,6 @@ setupSvg(
 );
 const textElem = document.getElementById("text-input") as HTMLInputElement;
 
-const linkDatums: LinkDatum[] = [];
 let remainingSteps = 200;
 
 // Set up D3 groups
@@ -27,7 +27,7 @@ var svgGroup = svg
     "transform",
     "translate(" + settings.width / 2 + "," + settings.height / 2 + ")"
   );
-var linkGroup: d3.Selection<BaseType, LinkPos, any, any> = svgGroup
+var linkGroup: d3.Selection<SVGLineElement, LinkPos, any, any> = svgGroup
   .append("g")
   .attr("stroke", settings.linkColor)
   .attr("stroke-width", settings.strokeWidth)
@@ -62,62 +62,23 @@ var simulation = d3f
     remainingSteps -= 1;
     if (remainingSteps > 0) {
       ticked(nodeGroup, linkGroup, labelGroup);
-      // ticked(nodeGroup, linkGroup, labelGroup);
     }
   });
 
 refreshSimulation();
 
 function refreshSimulation() {
-
   console.log("Starting datums", nodeDatums);
 
-  let nodeDatumGroup = nodeGroup.data(nodeDatums, function (d) {
-    return d.id;
+  linkGroup = refreshLinks(linkGroup, linkDatums);
+  nodeGroup = refreshNodes(nodeGroup, nodeDatums, function (node: NodePos) {
+    spawnNode(node, textElem, nodeDatums, linkDatums);
+    remainingSteps = settings.nbrSteps;
+    refreshSimulation();
   });
-  nodeDatumGroup.exit().remove();
-
-  // console.log("updateNodeGroup", updateNodeGroup);
-
-  nodeGroup = nodeDatumGroup
-    .enter()
-    .append("circle")
-    .attr("fill", function (d) {
-      return settings.circleColor;
-    })
-    .attr("r", settings.circleRadius)
-    .on("click", function (_target, node) {
-      console.log("Clicking");
-      spawnNode(node, textElem, nodeDatums, linkDatums);
-      remainingSteps = settings.nbrSteps;
-      refreshSimulation();
-    })
-    .merge(nodeGroup);
-
-  // const updateLabelGroup = labelGroup.data(nodeDatums, function (d) {
-  //   return d.id;
-  // });
-  // updateLabelGroup.exit().remove();
-  // const labelPosGroup = updateLabelGroup
-  //   .enter()
-  //   .append("text")
-  //   .text(function (d) {
-  //     return d.label;
-  //   })
-  //   .merge(labelGroup);
-
-  // Apply the general update pattern to the links.
-  // const updateLinkGroup = linkGroup.data(linkDatums, function (d) {
-  //   return d.source.id + "-" + d.target.id;
-  // });
-  // console.log("updateLinkGroup", updateLinkGroup);
-  // updateLinkGroup.exit().remove();
-
-  FIXME:
-  // linkGroup = updateLinkGroup.enter().append("line").merge(linkGroup);
+  labelGroup = refreshLabels(labelGroup, nodeDatums);
 
   // Update and restart the simulation.
   simulation.nodes(nodeDatums as d3f.SimulationNodeDatum[]);
-  // simulation.force("link").links(links);
   simulation.alpha(1).restart();
 }

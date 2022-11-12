@@ -1,4 +1,5 @@
 import { BaseType, select as d3select } from "d3";
+import { settings } from "./data";
 import { LinkDatum, LinkPos, NodeDatum, NodePos } from "./types";
 
 function setupSvg(
@@ -18,7 +19,7 @@ function setupSvg(
     .attr("y", -height / 2)
     .attr("width", width)
     .attr("height", height)
-    .attr("fill", "lightgray");
+    .attr("fill", settings.backgroundColor);
 }
 
 function ticked(

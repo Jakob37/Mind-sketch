@@ -1,4 +1,4 @@
-import { LinkDatum, NodeDatum, NodePos } from "./types";
+import { LinkDatum, LinkPos, NodeDatum, NodePos } from "./types";
 
 const settings = {
   width: 800,
@@ -13,6 +13,7 @@ const settings = {
   strokeWidth: 1.5,
   strokeColor: "#fff",
   linkColor: "#000",
+  backgroundColor: "#eee",
 };
 
 const a = { id: "a", label: "Label A", x: 0, y: 0 };
@@ -20,10 +21,10 @@ const b = { id: "b", label: "Label B", x: 0, y: 0 };
 const c = { id: "c", label: "Label C", x: 0, y: 0 };
 const nodeDatums: NodePos[] = [a, b, c];
 
-const links: LinkDatum[] = [];
-links.push({ source: a, target: b }); // Add a-b.
-links.push({ source: b, target: c }); // Add b-c.
-links.push({ source: c, target: a }); // Add c-a.
+const linkDatums: LinkPos[] = [];
+linkDatums.push({ source: a, target: b }); // Add a-b.
+linkDatums.push({ source: b, target: c }); // Add b-c.
+linkDatums.push({ source: c, target: a }); // Add c-a.
 
 
-export { settings, nodeDatums };
+export { settings, nodeDatums, linkDatums };
