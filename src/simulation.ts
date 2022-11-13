@@ -2,19 +2,45 @@ import * as d3 from "d3";
 import { settings } from "./data";
 import { LinkDatum, LinkPos, NodePos } from "./types";
 
-const drag = (function () {
-  const dragstarted = function (event: any, d: NodePos) {
-    d3.select(this).raise().attr("stroke", "black");
-  };
+// const drag = (function () {
+//   const dragstarted = function (event: any, d: NodePos) {
+//     d3.select(this).raise().attr("stroke", "black");
+//   };
 
-  function dragged(event: any, d: NodePos) {
-    d3.select(this)
-      .attr("cx", (d.x = event.x))
-      .attr("cy", (d.y = event.y));
+//   function dragged(event: any, d: NodePos) {
+//     d3.select(this)
+//       .attr("cx", (d.x = event.x))
+//       .attr("cy", (d.y = event.y));
+//   }
+
+//   function dragended(event: any, d: NodePos) {
+//     d3.select(this).attr("stroke", null);
+//   }
+
+//   return d3
+//     .drag()
+//     .on("start", dragstarted)
+//     .on("drag", dragged)
+//     .on("end", dragended);
+// })();
+
+
+function myDrag(simulation: d3.Simulation<d3.SimulationNodeDatum, undefined>) {
+  function dragstarted(event: any, d: any) {
+    if (!event.active) simulation.alphaTarget(0.3).restart();
+    d.fx = d.x;
+    d.fy = d.y;
   }
 
-  function dragended(event: any, d: NodePos) {
-    d3.select(this).attr("stroke", null);
+  function dragged(event: any, d: any) {
+    d.fx = event.x;
+    d.fy = event.y;
+  }
+
+  function dragended(event: any, d: any) {
+    if (!event.active) simulation.alphaTarget(0);
+    d.fx = null;
+    d.fy = null;
   }
 
   return d3
@@ -22,12 +48,13 @@ const drag = (function () {
     .on("start", dragstarted)
     .on("drag", dragged)
     .on("end", dragended);
-})();
+}
 
 function refreshNodes(
   localNodeGroup: d3.Selection<SVGCircleElement, NodePos, any, any>,
   nodeDatums: NodePos[],
-  spawnNode: (node: NodePos) => void
+  spawnNode: (node: NodePos) => void,
+  simulation: d3.Simulation<d3.SimulationNodeDatum, undefined>
 ) {
   let nodeDatumGroup = localNodeGroup.data(nodeDatums, function (d) {
     return d.id;
@@ -48,6 +75,7 @@ function refreshNodes(
         console.log("No shift no action!");
       }
     })
+    .call(myDrag(simulation))
     // .call(drag)
     .merge(localNodeGroup);
 

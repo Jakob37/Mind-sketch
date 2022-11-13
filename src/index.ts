@@ -1,7 +1,7 @@
 import { setupSvg } from "./util";
 import * as d3 from "d3";
 import * as d3f from "d3-force";
-import { BaseType } from "d3";
+import { BaseType, dsvFormat } from "d3";
 import { LinkPos, NodePos } from "./types";
 import { linkDatums, nodeDatums, settings } from "./data";
 import {
@@ -12,7 +12,12 @@ import {
   ticked,
 } from "./simulation";
 
-const svg = d3.select("#canvas") as d3.Selection<d3.BaseType, any, HTMLElement, any>;
+const svg = d3.select("#canvas") as d3.Selection<
+  SVGSVGElement,
+  any,
+  HTMLElement,
+  any
+>;
 
 console.log("svg", svg);
 
@@ -24,7 +29,7 @@ setupSvg(
 );
 const textElem = document.getElementById("text-input") as HTMLInputElement;
 
-let remainingSteps = 200;
+let remainingSteps = 100000000;
 
 // Set up D3 groups
 var svgGroup = svg
@@ -87,10 +92,14 @@ var simulation = d3f
     }
   });
 
+// function dragsubject() {
+//   return simulation.find(d3.event.x, d3.event.y);
+// }
+
 // svg.call(
 //   d3
 //     .drag()
-//     .container(svg)
+//     .container(svg.node)
 //     .subject(dragsubject)
 //     .on("start", dragstarted)
 //     .on("drag", dragged)
@@ -108,7 +117,7 @@ function refreshSimulation() {
     remainingSteps = settings.nbrSteps;
     refreshSimulation();
   };
-  nodeGroup = refreshNodes(nodeGroup, nodeDatums, onNodeClick);
+  nodeGroup = refreshNodes(nodeGroup, nodeDatums, onNodeClick, simulation);
   labelGroup = refreshLabels(labelGroup, nodeDatums);
 
   // Update and restart the simulation.
