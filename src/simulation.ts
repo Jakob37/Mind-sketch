@@ -99,9 +99,9 @@ function ticked(
 }
 
 function spawnNode(
-  source: NodeDatum,
+  source: NodePos,
   textElem: HTMLInputElement,
-  nodeDatums: NodeDatum[],
+  nodeDatums: NodePos[],
   links: LinkDatum[]
 ) {
   const currText = textElem.value;
@@ -109,6 +109,8 @@ function spawnNode(
   const newNode = {
     id: `node_${nodeDatums.length}`,
     label: currText != "" ? currText : "<empty>",
+    x: source.x,
+    y: source.y,
   };
   // const source = nodes[Math.floor(Math.random() * nodes.length)];
   const newLink = { source, target: newNode };

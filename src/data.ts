@@ -18,15 +18,18 @@ const settings = {
   backgroundColor: "#eee",
 };
 
-const a = { id: "a", label: "Label A", x: 0, y: 0 };
-const b = { id: "b", label: "Label B", x: 0, y: 0 };
-const c = { id: "c", label: "Label C", x: 0, y: 0 };
-const nodeDatums: NodePos[] = [a, b, c];
+const center = { id: "a", label: "Center", x: 0, y: 0 };
+const sub1 = { id: "b", label: "Sub 1", x: 0, y: 0 };
+const sub2 = { id: "c", label: "Sub 2", x: 0, y: 0 };
+const sub3 = { id: "d", label: "Sub 3", x: 0, y: 0 };
+const sub1_1 = { id: "e", label: "Sub 1-1", x: 0, y: 0 };
+const nodeDatums: NodePos[] = [center, sub1, sub2, sub3, sub1_1];
 
 const linkDatums: LinkPos[] = [];
-linkDatums.push({ source: a, target: b }); // Add a-b.
-linkDatums.push({ source: b, target: c }); // Add b-c.
-linkDatums.push({ source: c, target: a }); // Add c-a.
+linkDatums.push({ source: center, target: sub1 });
+linkDatums.push({ source: center, target: sub2 });
+linkDatums.push({ source: center, target: sub3 });
+linkDatums.push({ source: sub1, target: sub1_1 });
 
 
 export { settings, nodeDatums, linkDatums };
