@@ -4,7 +4,13 @@ import * as d3f from "d3-force";
 import { BaseType } from "d3";
 import { LinkPos, NodePos } from "./types";
 import { linkDatums, nodeDatums, settings } from "./data";
-import { refreshLabels, refreshLinks, refreshNodes, spawnNode, ticked } from "./simulation";
+import {
+  refreshLabels,
+  refreshLinks,
+  refreshNodes,
+  spawnNode,
+  ticked,
+} from "./simulation";
 
 const svg = d3.select("#canvas");
 
@@ -44,6 +50,22 @@ var labelGroup: d3.Selection<SVGTextElement, NodePos, any, any> = svgGroup
   .attr("dominant-baseline", "middle")
   .selectAll(".label");
 
+// function dragStart() {
+//   d3.select(this).classed("fixed", true);
+// }
+
+// function dragged(event, d: NodePos) {
+//   d.fx = clamp(event.x, 0, settings.width);
+//   d.fy = clamp(event.y, 0, settings.height);
+//   simulation.alpha(1).restart();
+// }
+
+// function clamp(val: number, lowBound: number, highBound: number) {
+//   return val < lowBound ? lowBound : val > highBound ? highBound : val;
+// }
+
+// const dragForce = d3.drag().on("start", dragStart).on("drag", dragged);
+
 var simulation = d3f
   .forceSimulation(nodeDatums as d3f.SimulationNodeDatum[])
   .force("charge", d3f.forceManyBody().strength(settings.chargeStrength))
@@ -71,11 +93,12 @@ function refreshSimulation() {
   console.log("Starting datums", nodeDatums);
 
   linkGroup = refreshLinks(linkGroup, linkDatums);
-  nodeGroup = refreshNodes(nodeGroup, nodeDatums, function (node: NodePos) {
+  const onNodeClick = function (node: NodePos) {
     spawnNode(node, textElem, nodeDatums, linkDatums);
     remainingSteps = settings.nbrSteps;
     refreshSimulation();
-  });
+  };
+  nodeGroup = refreshNodes(nodeGroup, nodeDatums, onNodeClick);
   labelGroup = refreshLabels(labelGroup, nodeDatums);
 
   // Update and restart the simulation.

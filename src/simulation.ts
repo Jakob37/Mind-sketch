@@ -1,6 +1,28 @@
-import { BaseType } from "d3";
+import * as d3 from "d3";
 import { settings } from "./data";
-import { LinkDatum, LinkPos, NodeDatum, NodePos } from "./types";
+import { LinkDatum, LinkPos, NodePos } from "./types";
+
+const drag = (function () {
+  const dragstarted = function (event: any, d: NodePos) {
+    d3.select(this).raise().attr("stroke", "black");
+  };
+
+  function dragged(event: any, d: NodePos) {
+    d3.select(this)
+      .attr("cx", (d.x = event.x))
+      .attr("cy", (d.y = event.y));
+  }
+
+  function dragended(event: any, d: NodePos) {
+    d3.select(this).attr("stroke", null);
+  }
+
+  return d3
+    .drag()
+    .on("start", dragstarted)
+    .on("drag", dragged)
+    .on("end", dragended);
+})();
 
 function refreshNodes(
   localNodeGroup: d3.Selection<SVGCircleElement, NodePos, any, any>,
@@ -11,6 +33,13 @@ function refreshNodes(
     return d.id;
   });
   nodeDatumGroup.exit().remove();
+
+  function dragged(event: { x: number; y: number }, d: NodePos) {
+    console.log("Event", event);
+    d.x = event.x;
+    d.y = event.y;
+  }
+
   const resultNodeGroup = nodeDatumGroup
     .enter()
     .append("circle")
@@ -18,9 +47,14 @@ function refreshNodes(
       return settings.circleColor;
     })
     .attr("r", settings.circleRadius)
-    .on("click", function (_target, node) {
-      spawnNode(node);
-    })
+    // .on("click", function (click, node) {
+    //   if (click.shiftKey) {
+    //     spawnNode(node);
+    //   } else {
+    //     console.log("No shift no action!");
+    //   }
+    // })
+    .call(drag)
     .merge(localNodeGroup);
 
   return resultNodeGroup;
@@ -61,17 +95,14 @@ function refreshLinks(
 
 function ticked(
   nodeGroup: d3.Selection<SVGCircleElement, NodePos, any, any>,
-  linkGroup: d3.Selection<BaseType, LinkPos, any, any>,
-  labelGroup: d3.Selection<BaseType, NodePos, any, any>
+  linkGroup: d3.Selection<d3.BaseType, LinkPos, any, any>,
+  labelGroup: d3.Selection<d3.BaseType, NodePos, any, any>
 ) {
-  console.log("Ticking");
   nodeGroup
     .attr("cx", function (d) {
-      console.log("Assingning cx", d.x);
       return d.x;
     })
     .attr("cy", function (d) {
-      console.log("Assingning cy", d.y);
       return d.y;
     });
 
