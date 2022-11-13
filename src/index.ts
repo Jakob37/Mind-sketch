@@ -1,10 +1,10 @@
-import { setupSvg, spawnNode, ticked } from "./util";
+import { setupSvg } from "./util";
 import * as d3 from "d3";
 import * as d3f from "d3-force";
 import { BaseType } from "d3";
 import { LinkPos, NodePos } from "./types";
 import { linkDatums, nodeDatums, settings } from "./data";
-import { refreshLabels, refreshLinks, refreshNodes } from "./simulation";
+import { refreshLabels, refreshLinks, refreshNodes, spawnNode, ticked } from "./simulation";
 
 const svg = d3.select("#canvas");
 

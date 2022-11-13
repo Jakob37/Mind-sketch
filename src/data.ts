@@ -1,14 +1,16 @@
 import { LinkDatum, LinkPos, NodeDatum, NodePos } from "./types";
 
+const width = 800;
+
 const settings = {
-  width: 800,
-  height: 800,
+  width,
+  height: width,
   circleRadius: 40,
   nbrSteps: 50,
   circleDistance: 150,
   chargeStrength: -1000,
-  xForce: -200,
-  yForce: -200,
+  xForce: -width / 2,
+  yForce: -width / 2,
   circleColor: "#ccffcc",
   strokeWidth: 1.5,
   strokeColor: "#fff",
