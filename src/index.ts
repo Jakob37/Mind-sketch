@@ -18,15 +18,20 @@ const svg = d3.select("#canvas") as d3.Selection<
   HTMLElement,
   any
 >;
-
-console.log("svg", svg);
+const textElem = document.getElementById("text-input") as HTMLInputElement;
+textElem.oninput = function () {
+  const active = nodeDatums.find((datum) => datum.isActive);
+  if (active != null) {
+    active.label = textElem.value;
+    update();
+  }
+};
 
 setupSvg(
   svg as d3.Selection<SVGElement, any, HTMLElement, any>,
   settings.width,
   settings.height
 );
-const textElem = document.getElementById("text-input") as HTMLInputElement;
 
 // Set up D3 groups
 var svgGroup = svg
@@ -79,8 +84,9 @@ function update() {
 
   const onNodeClick = function (node: NodePos) {
     console.log("Clicking node");
-    nodeDatums.map((node) => node.isActive = false)
+    nodeDatums.map((node) => (node.isActive = false));
     node.isActive = true;
+    textElem.value = node.label;
     update();
   };
   const onNodeShiftClick = function (node: NodePos) {
