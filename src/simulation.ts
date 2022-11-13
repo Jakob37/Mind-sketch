@@ -1,62 +1,13 @@
 import * as d3 from "d3";
-import { settings } from "./data";
+import { makeNodeWithPos, settings } from "./data";
+import { myDrag } from "./drag";
 import { LinkDatum, LinkPos, NodePos } from "./types";
-
-// const drag = (function () {
-//   const dragstarted = function (event: any, d: NodePos) {
-//     d3.select(this).raise().attr("stroke", "black");
-//   };
-
-//   function dragged(event: any, d: NodePos) {
-//     d3.select(this)
-//       .attr("cx", (d.x = event.x))
-//       .attr("cy", (d.y = event.y));
-//   }
-
-//   function dragended(event: any, d: NodePos) {
-//     d3.select(this).attr("stroke", null);
-//   }
-
-//   return d3
-//     .drag()
-//     .on("start", dragstarted)
-//     .on("drag", dragged)
-//     .on("end", dragended);
-// })();
-
-
-function myDrag(simulation: d3.Simulation<d3.SimulationNodeDatum, undefined>) {
-  function dragstarted(event: any, d: any) {
-    console.log("dragstarted", event);
-    if (!event.active) simulation.alphaTarget(0.3).restart();
-    d.fx = d.x;
-    d.fy = d.y;
-  }
-
-  function dragged(event: any, d: any) {
-    console.log("dragged", event);
-    d.fx = event.x;
-    d.fy = event.y;
-  }
-
-  function dragended(event: any, d: any) {
-    console.log("drag ended", event);
-    if (!event.active) simulation.alphaTarget(0);
-    d.fx = null;
-    d.fy = null;
-  }
-
-  return d3
-    .drag()
-    .on("start", dragstarted)
-    .on("drag", dragged)
-    .on("end", dragended);
-}
 
 function refreshNodes(
   localNodeGroup: d3.Selection<SVGCircleElement, NodePos, any, any>,
   nodeDatums: NodePos[],
-  spawnNode: (node: NodePos) => void,
+  onNodeClick: (node: NodePos) => void,
+  onNodeShiftClick: (node: NodePos) => void,
   simulation: d3.Simulation<d3.SimulationNodeDatum, undefined>
 ) {
   let nodeDatumGroup = localNodeGroup.data(nodeDatums, function (d) {
@@ -68,18 +19,17 @@ function refreshNodes(
     .enter()
     .append("circle")
     .attr("fill", function (d) {
-      return settings.circleColor;
+      return d.isActive ? settings.activeColor : settings.inactiveColor;
     })
     .attr("r", settings.circleRadius)
     .on("click", function (click, node) {
       if (click.shiftKey) {
-        spawnNode(node);
+        onNodeShiftClick(node);
       } else {
-        console.log("No shift no action!");
+        onNodeClick(node);
       }
     })
     .call(myDrag(simulation))
-    // .call(drag)
     .merge(localNodeGroup);
 
   return resultNodeGroup;
@@ -162,12 +112,11 @@ function spawnNode(
 ) {
   const currText = textElem.value;
 
-  const newNode = {
-    id: `node_${nodeDatums.length}`,
-    label: currText != "" ? currText : "<empty>",
-    x: source.x,
-    y: source.y,
-  };
+  const newNode = makeNodeWithPos(
+    currText != "" ? currText : "<empty>",
+    source.x,
+    source.y
+  );
   // const source = nodes[Math.floor(Math.random() * nodes.length)];
   const newLink = { source, target: newNode };
   nodeDatums.push(newNode);

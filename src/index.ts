@@ -23,13 +23,10 @@ console.log("svg", svg);
 
 setupSvg(
   svg as d3.Selection<SVGElement, any, HTMLElement, any>,
-  // d3.select(svg) as d3.Selection<SVGElement, any, HTMLElement, any>,
   settings.width,
   settings.height
 );
 const textElem = document.getElementById("text-input") as HTMLInputElement;
-
-// let remainingSteps = 100000000;
 
 // Set up D3 groups
 var svgGroup = svg
@@ -55,22 +52,6 @@ var labelGroup: d3.Selection<SVGTextElement, NodePos, any, any> = svgGroup
   .attr("dominant-baseline", "middle")
   .selectAll(".label");
 
-// function dragStart() {
-//   d3.select(this).classed("fixed", true);
-// }
-
-// function dragged(event, d: NodePos) {
-//   d.fx = clamp(event.x, 0, settings.width);
-//   d.fy = clamp(event.y, 0, settings.height);
-//   simulation.alpha(1).restart();
-// }
-
-// function clamp(val: number, lowBound: number, highBound: number) {
-//   return val < lowBound ? lowBound : val > highBound ? highBound : val;
-// }
-
-// const dragForce = d3.drag().on("start", dragStart).on("drag", dragged);
-
 var simulation = d3f
   .forceSimulation(nodeDatums as d3f.SimulationNodeDatum[])
   .force("charge", d3f.forceManyBody().strength(settings.chargeStrength))
@@ -86,38 +67,33 @@ var simulation = d3f
   .force("y", d3f.forceY(settings.yForce))
   .alphaTarget(1)
   .on("tick", function () {
-    // remainingSteps -= 1;
-    // if (remainingSteps > 0) {
     ticked(nodeGroup, linkGroup, labelGroup);
-    // }
   });
 
-// function dragsubject() {
-//   return simulation.find(d3.event.x, d3.event.y);
-// }
+update();
 
-// svg.call(
-//   d3
-//     .drag()
-//     .container(svg.node)
-//     .subject(dragsubject)
-//     .on("start", dragstarted)
-//     .on("drag", dragged)
-//     .on("end", dragended)
-// );
-
-refreshSimulation();
-
-function refreshSimulation() {
+function update() {
   console.log("Starting datums", nodeDatums);
 
   linkGroup = refreshLinks(linkGroup, linkDatums);
+
   const onNodeClick = function (node: NodePos) {
-    spawnNode(node, textElem, nodeDatums, linkDatums);
-    // remainingSteps = settings.nbrSteps;
-    refreshSimulation();
+    console.log("Clicking node");
+    nodeDatums.map((node) => node.isActive = false)
+    node.isActive = true;
+    update();
   };
-  nodeGroup = refreshNodes(nodeGroup, nodeDatums, onNodeClick, simulation);
+  const onNodeShiftClick = function (node: NodePos) {
+    spawnNode(node, textElem, nodeDatums, linkDatums);
+    update();
+  };
+  nodeGroup = refreshNodes(
+    nodeGroup,
+    nodeDatums,
+    onNodeClick,
+    onNodeShiftClick,
+    simulation
+  );
   labelGroup = refreshLabels(labelGroup, nodeDatums);
 
   // Update and restart the simulation.

@@ -1,4 +1,5 @@
-import { LinkDatum, LinkPos, NodeDatum, NodePos } from "./types";
+import * as d3 from "d3";
+import { LinkPos, NodePos } from "./types";
 
 const width = 800;
 
@@ -11,18 +12,33 @@ const settings = {
   chargeStrength: -1000,
   xForce: -width / 2,
   yForce: -width / 2,
-  circleColor: "#ccffcc",
+  inactiveColor: "#cccccc",
+  activeColor: "#ccccff",
   strokeWidth: 1.5,
   strokeColor: "#fff",
   linkColor: "#000",
   backgroundColor: "#eee",
 };
 
-const center = { id: "a", label: "Center", x: 0, y: 0 };
-const sub1 = { id: "b", label: "Sub 1", x: 0, y: 0 };
-const sub2 = { id: "c", label: "Sub 2", x: 0, y: 0 };
-const sub3 = { id: "d", label: "Sub 3", x: 0, y: 0 };
-const sub1_1 = { id: "e", label: "Sub 1-1", x: 0, y: 0 };
+function makeNode(label: string): NodePos {
+  return makeNodeWithPos(label, settings.width / 2, settings.height / 2);
+}
+
+function makeNodeWithPos(label: string, x: number, y: number): NodePos {
+  return {
+    label,
+    id: `id-${d3.randomUniform()}`,
+    x: settings.width / 2,
+    y: settings.height / 2,
+    isActive: false,
+  };
+}
+
+const center = makeNode("center");
+const sub1 = makeNode("Sub 1");
+const sub2 = makeNode("Sub 2");
+const sub3 = makeNode("Sub 3");
+const sub1_1 = makeNode("Sub 1-1");
 const nodeDatums: NodePos[] = [center, sub1, sub2, sub3, sub1_1];
 
 const linkDatums: LinkPos[] = [];
@@ -31,5 +47,4 @@ linkDatums.push({ source: center, target: sub2 });
 linkDatums.push({ source: center, target: sub3 });
 linkDatums.push({ source: sub1, target: sub1_1 });
 
-
-export { settings, nodeDatums, linkDatums };
+export { settings, nodeDatums, linkDatums, makeNodeWithPos };

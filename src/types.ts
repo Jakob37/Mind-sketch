@@ -8,6 +8,7 @@ interface NodePos {
   label: string;
   x: number;
   y: number;
+  isActive: boolean;
 }
 
 interface LinkDatum {
