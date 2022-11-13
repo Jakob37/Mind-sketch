@@ -12,7 +12,7 @@ import {
   ticked,
 } from "./simulation";
 
-const svg = d3.select("#canvas");
+const svg = d3.select("#canvas") as d3.Selection<d3.BaseType, any, HTMLElement, any>;
 
 console.log("svg", svg);
 
@@ -86,6 +86,16 @@ var simulation = d3f
       ticked(nodeGroup, linkGroup, labelGroup);
     }
   });
+
+// svg.call(
+//   d3
+//     .drag()
+//     .container(svg)
+//     .subject(dragsubject)
+//     .on("start", dragstarted)
+//     .on("drag", dragged)
+//     .on("end", dragended)
+// );
 
 refreshSimulation();
 

@@ -34,12 +34,6 @@ function refreshNodes(
   });
   nodeDatumGroup.exit().remove();
 
-  function dragged(event: { x: number; y: number }, d: NodePos) {
-    console.log("Event", event);
-    d.x = event.x;
-    d.y = event.y;
-  }
-
   const resultNodeGroup = nodeDatumGroup
     .enter()
     .append("circle")
@@ -47,14 +41,14 @@ function refreshNodes(
       return settings.circleColor;
     })
     .attr("r", settings.circleRadius)
-    // .on("click", function (click, node) {
-    //   if (click.shiftKey) {
-    //     spawnNode(node);
-    //   } else {
-    //     console.log("No shift no action!");
-    //   }
-    // })
-    .call(drag)
+    .on("click", function (click, node) {
+      if (click.shiftKey) {
+        spawnNode(node);
+      } else {
+        console.log("No shift no action!");
+      }
+    })
+    // .call(drag)
     .merge(localNodeGroup);
 
   return resultNodeGroup;
