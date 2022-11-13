@@ -27,17 +27,20 @@ import { LinkDatum, LinkPos, NodePos } from "./types";
 
 function myDrag(simulation: d3.Simulation<d3.SimulationNodeDatum, undefined>) {
   function dragstarted(event: any, d: any) {
+    console.log("dragstarted", event);
     if (!event.active) simulation.alphaTarget(0.3).restart();
     d.fx = d.x;
     d.fy = d.y;
   }
 
   function dragged(event: any, d: any) {
+    console.log("dragged", event);
     d.fx = event.x;
     d.fy = event.y;
   }
 
   function dragended(event: any, d: any) {
+    console.log("drag ended", event);
     if (!event.active) simulation.alphaTarget(0);
     d.fx = null;
     d.fy = null;

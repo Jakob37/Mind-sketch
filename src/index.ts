@@ -29,7 +29,7 @@ setupSvg(
 );
 const textElem = document.getElementById("text-input") as HTMLInputElement;
 
-let remainingSteps = 100000000;
+// let remainingSteps = 100000000;
 
 // Set up D3 groups
 var svgGroup = svg
@@ -86,10 +86,10 @@ var simulation = d3f
   .force("y", d3f.forceY(settings.yForce))
   .alphaTarget(1)
   .on("tick", function () {
-    remainingSteps -= 1;
-    if (remainingSteps > 0) {
-      ticked(nodeGroup, linkGroup, labelGroup);
-    }
+    // remainingSteps -= 1;
+    // if (remainingSteps > 0) {
+    ticked(nodeGroup, linkGroup, labelGroup);
+    // }
   });
 
 // function dragsubject() {
@@ -114,7 +114,7 @@ function refreshSimulation() {
   linkGroup = refreshLinks(linkGroup, linkDatums);
   const onNodeClick = function (node: NodePos) {
     spawnNode(node, textElem, nodeDatums, linkDatums);
-    remainingSteps = settings.nbrSteps;
+    // remainingSteps = settings.nbrSteps;
     refreshSimulation();
   };
   nodeGroup = refreshNodes(nodeGroup, nodeDatums, onNodeClick, simulation);
